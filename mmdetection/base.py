@@ -177,7 +177,8 @@ class BaseDetector(BaseModule, metaclass=ABCMeta):
                                          f'{imgs[0].size(0)}'
             # TODO: support test augmentation for predefined proposals
             assert 'proposals' not in kwargs
-            return self.aug_test(imgs, img_metas, **kwargs)
+
+            return self.aug_test(imgs, img_metas, **kwargs)    #######안 될 경우 이 부분을 위와 같은 방법으로 수정하면 될 지도..?
 
     @auto_fp16(apply_to=('img', ))
     def forward(self, img, img_metas, return_loss=True, **kwargs):
@@ -367,7 +368,7 @@ class BaseDetector(BaseModule, metaclass=ABCMeta):
             labels,
             segms,
 
-            # class_names=self.CLASSES,   ######모델마다 다른 건지 CLASSES가 없다고 떠서 수정
+            # class_names=self.CLASSES,   ############################모델마다 다른 건지 CLASSES가 없다고 떠서 수정
             class_names=("General trash", "Paper", "Paper pack", "Metal", "Glass", 
            "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing"),
 
