@@ -6,7 +6,7 @@ _base_ = [
 
 data = dict(samples_per_gpu=4)
 
-optimizer = dict(_delete_=True, type='Adam', lr=0.0005, weight_decay=0.0001)
+optimizer = dict(_delete_=True, type='Adam', lr=0.0003, weight_decay=0.0001)
 
 optimizer_config = dict(
     _delete_=True, grad_clip=dict(max_norm=35, norm_type=2))
