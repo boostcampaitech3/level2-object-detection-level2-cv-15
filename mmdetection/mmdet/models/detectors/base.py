@@ -165,8 +165,7 @@ class BaseDetector(BaseModule, metaclass=ABCMeta):
             if self.cnt % 100 == 0 :   # 100장에 한번씩 출력
                 pred_img = self.show_result(img_metas[0][0]['filename'], r[0])#, show=True)   
                 pred_img = wandb.Image(pred_img)
-                gt_img = self.show_gt(img_metas[0][0]['filename'])
-                wandb.log({'gt / pred':[gt_img, pred_img]})
+                wandb.log({'pred':pred_img})
                 time.sleep(1)
             self.cnt+=1
             return r
