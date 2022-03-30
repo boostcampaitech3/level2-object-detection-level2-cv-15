@@ -161,15 +161,18 @@ class BaseDetector(BaseModule, metaclass=ABCMeta):
 # inference에서 오류가 날 경우 이 부분만 원래 코드로 바꾸시면 될 거에요 아마..
 
 ##########################수정한 코드#########################################################
-            r = self.simple_test(imgs[0], img_metas[0], **kwargs)        
-            if self.cnt % 100 == 0 :   # 100장에 한번씩 출력
-                pred_img = self.show_result(img_metas[0][0]['filename'], r[0])#, show=True)   
-                pred_img = wandb.Image(pred_img)
-                gt_img=self.show_gt(img_metas[0][0]['filename'])
-                wandb.log({'gt / pred':[gt_img, pred_img]})
-                time.sleep(1)
-            self.cnt+=1
-            return r
+            if 'test' in img_metas[0][0]['ori_filename']:
+                return self.simple_test(imgs[0], img_metas[0], **kwargs)
+            else:
+                r = self.simple_test(imgs[0], img_metas[0], **kwargs)        
+                if self.cnt % 100 == 0 :   # 100장에 한번씩 출력
+                    pred_img = self.show_result(img_metas[0][0]['filename'], r[0])#, show=True)   
+                    pred_img = wandb.Image(pred_img)
+                    gt_img=self.show_gt(img_metas[0][0]['ori_filename'])
+                    wandb.log({'gt/pred':[gt_img,pred_img]})
+                    time.sleep(1)
+                self.cnt+=1
+                return r
 ######################################################################################################
         else:
             assert imgs[0].size(0) == 1, 'aug test does not support ' \
@@ -398,8 +401,8 @@ class BaseDetector(BaseModule, metaclass=ABCMeta):
 
         categories = {c["id"]:c["name"] for c in labels["categories"]}
   
-        img_id = int(img.split('/')[4].split('.')[0])
-        img_name = img.split('/')[4]
+        img_id = int(img.split('/')[1].split('.')[0]) #train/0001.jpg
+        img_name = img.split('/')[1]
         data_path = "../../dataset/train"
        
         wandb_boxes = {"predictions": 
@@ -424,5 +427,6 @@ class BaseDetector(BaseModule, metaclass=ABCMeta):
             wandb_boxes["predictions"]["box_data"].append(curr_box)
 
         img_path = os.path.join(data_path, img_name)
+        img = wandb.Image(img_path, boxes = wandb_boxes)
 
         return img
