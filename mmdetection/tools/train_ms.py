@@ -21,14 +21,36 @@ from mmdet.utils import collect_env, get_root_logger, setup_multi_processes
 
 def main():
     args = parse_args()
-
+    classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
+           "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
     cfg = Config.fromfile(args.config)
-    if args.name:
-        cfg.log_config.hooks[1]["init_kwargs"].name = args.name
-    if args.train_data:
-        cfg.data.train.ann_file = args.train_data
-    if args.val_data:
-        cfg.data.val.ann_file = args.val_data
+    resize = (args.resize, args.resize)
+    if args.multi:
+        cfg.data.train.dataset.classes = classes
+        cfg.data.train.dataset.img_prefix = args.root
+        cfg.data.train.dataset.ann_file = args.root + 'cv_train_1.json'
+        cfg.data.train.pipeline[2]['img_scale'] = resize
+    else:
+        cfg.data.train.classes = classes
+        cfg.data.train.img_prefix = args.root
+        cfg.data.train.ann_file = args.root + 'cv_train_1.json'
+    
+        cfg.data.train.pipeline[2]['img_scale'] = resize
+
+    cfg.data.val.classes = classes
+    cfg.data.val.img_prefix = args.root
+    cfg.data.val.ann_file = args.root + 'cv_val_1.json'
+    cfg.data.val.pipeline[1]['img_scale'] = resize
+
+    cfg.data.test.classes = classes
+    cfg.data.test.img_prefix = args.root
+    cfg.data.test.ann_file = args.root + 'test.json'
+    cfg.data.test.pipeline[1]['img_scale'] = resize
+
+    cfg.runner.max_epochs = args.epochs
+    cfg.log_config.hooks[1]["init_kwargs"].name = args.name_wandb
+    cfg.model.rpn_head.anchor_generator.ratios = [0.7, 1, 1.5]
+
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
 
@@ -42,7 +64,7 @@ def main():
     # work_dir is determined in this priority: CLI > segment in file > filename
     if args.work_dir is not None:
         # update configs according to CLI args if args.work_dir is not None
-        cfg.work_dir = args.work_dir
+        cfg.work_dir = args.work_dir + args.name
     elif cfg.get('work_dir', None) is None:
         # use config filename as default work_dir if cfg.work_dir is None
         cfg.work_dir = osp.join('./work_dirs',
@@ -114,6 +136,8 @@ def main():
     model.init_weights()
 
     datasets = [build_dataset(cfg.data.train)]
+
+
     if len(cfg.workflow) == 2:
         val_dataset = copy.deepcopy(cfg.data.val)
         val_dataset.pipeline = cfg.data.train.pipeline
@@ -137,9 +161,16 @@ def main():
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
-    parser.add_argument('name', default ='cascade_multi_scale_value', help='name of experiment')
-    parser.add_argument('--config', default = '/opt/ml/detection/baseline/mmdetection/boostcamp2/cascade_rcnn/cascade_swin_pafpn_3x_1', help='train config file path')
-    parser.add_argument('--work-dir',default = '/opt/ml/detection/baseline/mmdetection/work_dirs/cascade_rcnn_swin_pafpn_3x', help='the dir to save logs and models')
+    parser.add_argument('--config', default = '/opt/ml/detection/baseline/mmdetection/boostcamp/cascade_rcnn_swinL_pafpn_1x_coco.py',
+        help='train config file path'),
+    parser.add_argument('--multi', default = False)
+    parser.add_argument('--root', default = '/opt/ml/detection/dataset/')
+    parser.add_argument('--name', default = 'Adamw_step_head4')
+    parser.add_argument('--name_wandb', default = 'mm_carscade_swinL_pafpn_head4')
+    parser.add_argument('--resize', type = int, default = 512)
+    parser.add_argument('--work-dir', default = './work_dirs/carscade_rcnn_swinL_pafpn_1x_trash/',
+        help='the dir to save logs and models')
+    parser.add_argument('--epochs', type = int, default = 30)
     parser.add_argument(
         '--resume-from', help='the checkpoint file to resume from')
     parser.add_argument(
@@ -168,7 +199,7 @@ def parse_args():
         default=0,
         help='id of gpu to use '
         '(only applicable to non-distributed training)')
-    parser.add_argument('--seed', type=int, default=None, help='random seed')
+    parser.add_argument('--seed', type=int, default=2022, help='random seed')
     parser.add_argument(
         '--deterministic',
         action='store_true',
@@ -209,3 +240,7 @@ def parse_args():
         args.cfg_options = args.options
 
     return args
+
+
+if __name__ == '__main__':
+    main()
