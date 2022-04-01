@@ -1,3 +1,4 @@
+# model settings
 model = dict(
     type='CascadeRCNN',
     backbone=dict(
@@ -23,7 +24,7 @@ model = dict(
             type='AnchorGenerator',
             scales=[8],
             ratios=[0.7, 1, 1.5],
-            strides=[4, 8, 16, 32, 64]),
+            strides=[4, 8, 16, 32, 64]),        
         bbox_coder=dict(
             type='DeltaXYWHBBoxCoder',
             target_means=[.0, .0, .0, .0],
@@ -34,7 +35,7 @@ model = dict(
     roi_head=dict(
         type='CascadeRoIHead',
         num_stages=4,
-        stage_loss_weights=[1, 0.5, 0.25, 0.125],
+        stage_loss_weights=[1, 0.5, 0.25, 0.125], 
         bbox_roi_extractor=dict(
             type='SingleRoIExtractor',
             roi_layer=dict(type='RoIAlign', output_size=7, sampling_ratio=0),
@@ -136,22 +137,6 @@ model = dict(
             dict(
                 assigner=dict(
                     type='MaxIoUAssigner',
-                    pos_iou_thr=0.4,
-                    neg_iou_thr=0.4,
-                    min_pos_iou=0.4,
-                    match_low_quality=False,
-                    ignore_iof_thr=-1),
-                sampler=dict(
-                    type='RandomSampler',
-                    num=512,
-                    pos_fraction=0.25,
-                    neg_pos_ub=-1,
-                    add_gt_as_proposals=True),
-                pos_weight=-1,
-                debug=False),
-            dict(
-                assigner=dict(
-                    type='MaxIoUAssigner',
                     pos_iou_thr=0.5,
                     neg_iou_thr=0.5,
                     min_pos_iou=0.5,
@@ -180,6 +165,38 @@ model = dict(
                     neg_pos_ub=-1,
                     add_gt_as_proposals=True),
                 pos_weight=-1,
+                debug=False),
+            dict(
+                assigner=dict(
+                    type='MaxIoUAssigner',
+                    pos_iou_thr=0.7,
+                    neg_iou_thr=0.7,
+                    min_pos_iou=0.7,
+                    match_low_quality=False,
+                    ignore_iof_thr=-1),
+                sampler=dict(
+                    type='RandomSampler',
+                    num=512,
+                    pos_fraction=0.25,
+                    neg_pos_ub=-1,
+                    add_gt_as_proposals=True),
+                pos_weight=-1,
+                debug=False),
+            dict(
+                assigner=dict(
+                    type='MaxIoUAssigner',
+                    pos_iou_thr=0.8,
+                    neg_iou_thr=0.8,
+                    min_pos_iou=0.8,
+                    match_low_quality=False,
+                    ignore_iof_thr=-1),
+                sampler=dict(
+                    type='RandomSampler',
+                    num=512,
+                    pos_fraction=0.25,
+                    neg_pos_ub=-1,
+                    add_gt_as_proposals=True),
+                pos_weight=-1,
                 debug=False)
         ]),
     test_cfg=dict(
@@ -192,5 +209,3 @@ model = dict(
             score_thr=0.05,
             nms=dict(type='nms', iou_threshold=0.5),
             max_per_img=100)))
-
-work_dir = "/opt/ml/detection/baseline/mmdetection/work_dirs/cascade"

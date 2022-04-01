@@ -10,7 +10,7 @@ img_norm_cfg = dict(
 # Albumentations transforms settings
 albu_train_transforms = [
     dict(type='Flip',p=0.5),
-    dict(type='RandomRotate90',p=0.5)
+    dict(type='RandomRotate90',p=0.5),
     dict(type='RandomBrightnessContrast',brightness_limit=0.1, contrast_limit=0.15, p=0.5),
     dict(type='HueSaturationValue', hue_shift_limit=15, sat_shift_limit=25, val_shift_limit=10, p=0.5),
     dict(type='GaussNoise', p=0.3),
@@ -30,7 +30,9 @@ albu_train_transforms = [
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-        dict(
+    dict(type='RandomFlip', flip_ratio=0.5),
+
+    dict(
         type="AutoAugment",
         policies=[
             [
@@ -88,6 +90,7 @@ train_pipeline = [
             ],
         ],
     ),
+
     dict(
         type='Albu',
         transforms=albu_train_transforms,
@@ -116,7 +119,7 @@ valid_pipeline = [
     dict(
         type='MultiScaleFlipAug',
         img_scale=(1024, 1024),
-        flip=False,
+        flip=True,
         transforms=[
             dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
@@ -132,7 +135,8 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=[(512, 1024),(1024,1024)]
+        flip = True,
+        img_scale=[(512, 1024),(1024,1024)],
         transforms=[
             dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),

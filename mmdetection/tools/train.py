@@ -20,6 +20,7 @@ from mmdet.utils import collect_env, get_root_logger, setup_multi_processes
 
 
 def main():
+    print("sd")
     args = parse_args()
 
     cfg = Config.fromfile(args.config)
@@ -135,10 +136,13 @@ def main():
         timestamp=timestamp,
         meta=meta)
 
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
-    parser.add_argument('name', default ='cascade_multi_scale_value', help='name of experiment')
-    parser.add_argument('--config', default = '/opt/ml/detection/baseline/mmdetection/boostcamp2/cascade_rcnn/cascade_swin_pafpn_3x_1', help='train config file path')
+    parser.add_argument('--name', default ='cascade_multi_scale_value', help='name of experiment')
+    parser.add_argument('--config', default = '/opt/ml/detection/baseline/mmdetection/boostcamp2/cascade_rcnn/cascade_swin_pafpn_3x_1.py', help='train config file path')
+    parser.add_argument('--train_data', default = '/opt/ml/detection/dataset/cv_train_1.json', help='dataset for train')
+    parser.add_argument('--val_data', default = '/opt/ml/detection/dataset/cv_val_1.json', help='dataset for validation')
     parser.add_argument('--work-dir',default = '/opt/ml/detection/baseline/mmdetection/work_dirs/cascade_rcnn_swin_pafpn_3x', help='the dir to save logs and models')
     parser.add_argument(
         '--resume-from', help='the checkpoint file to resume from')
@@ -209,3 +213,6 @@ def parse_args():
         args.cfg_options = args.options
 
     return args
+
+if __name__ == '__main__':
+    main()
