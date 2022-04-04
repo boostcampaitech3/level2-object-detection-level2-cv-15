@@ -1,5 +1,5 @@
 dataset_type = 'CocoDataset'
-data_root = '/opt/ml/detection/dataset/'
+data_root = '/opt/ml/detection/dataset2/'
 # class settings
 classes = ['General trash', 'Paper', 'Paper pack', 'Metal', 'Glass', 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery', 'Clothing']
 
@@ -102,7 +102,7 @@ train_pipeline = [
             filter_lost_elements=True),
         keymap={
             'img': 'image',
-            'gt_bboxes': 'bboxes'
+            'gt_bboxes': 'bboxes',
         },
         update_pad_shape=False,
         skip_img_without_anno=True
@@ -119,7 +119,7 @@ valid_pipeline = [
     dict(
         type='MultiScaleFlipAug',
         img_scale=(1024, 1024),
-        flip=True,
+        # flip=True,
         transforms=[
             dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
@@ -136,7 +136,7 @@ test_pipeline = [
     dict(
         type='MultiScaleFlipAug',
         flip = True,
-        img_scale=[(512, 1024),(1024,1024)],
+        img_scale=(512,512),
         transforms=[
             dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
@@ -157,13 +157,13 @@ data = dict(
     workers_per_gpu=2, # num_workers
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'cv_train_1.json',  # use entire train dataset
+        ann_file=data_root + 'cv2_train_1.json',  # use entire train dataset
         img_prefix=data_root,
         classes=classes,
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'cv_val_1.json',
+        ann_file=data_root + 'cv2_val_1.json',
         img_prefix=data_root,
         classes=classes,
         pipeline=valid_pipeline),
