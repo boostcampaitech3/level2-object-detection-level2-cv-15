@@ -139,11 +139,11 @@ def main():
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train a detector')
-    parser.add_argument('--name', default ='detr_x101_datasetchange', help='name of experiment')
-    parser.add_argument('--config', default = '/opt/ml/detection/baseline/mmdetection/boostcamp2/deformable_detr/deformable_detr_twostage_refine_x101_16x2_3x_coco.py', help='train config file path')
-    parser.add_argument('--train_data', default = '/opt/ml/detection/dataset2/cv2_train_3.json', help='dataset for train')
-    parser.add_argument('--val_data', default = '/opt/ml/detection/dataset2/cv2_val_3.json', help='dataset for validation')
-    parser.add_argument('--work-dir',default = '/opt/ml/detection/baseline/mmdetection/work_dirs/detectors_ddetr_x101_3x_coco', help='the dir to save logs and models')
+    parser.add_argument('--name', default ='faster_rcnn_origin2', help='name of experiment')
+    parser.add_argument('--config', default = '/opt/ml/detection/baseline/mmdetection/boostcamp2/faster_rcnn/faster_rcnn_swin_pafpn_3x_coco.py', help='train config file path')
+    parser.add_argument('--train_data', default = '/opt/ml/detection/dataset2/cv2_train_2.json', help='dataset for train')
+    parser.add_argument('--val_data', default = '/opt/ml/detection/dataset2/cv2_val_2.json', help='dataset for validation')
+    parser.add_argument('--work-dir',default = '/opt/ml/detection/baseline/mmdetection/work_dirs/faster_rcnn/origin2', help='the dir to save logs and models')
     parser.add_argument(
         '--resume-from', help='the checkpoint file to resume from')
     parser.add_argument(

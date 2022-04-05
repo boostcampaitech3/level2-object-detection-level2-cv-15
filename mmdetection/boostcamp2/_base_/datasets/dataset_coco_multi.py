@@ -135,8 +135,8 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        flip = True,
-        img_scale=(512,512),
+        flip=True,
+        img_scale=[(512, 1024), (1024, 1024)],
         transforms=[
             dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
@@ -169,7 +169,7 @@ data = dict(
         pipeline=valid_pipeline),
     test=dict(
         type=dataset_type,
-        # ann_file=data_root + 'test.json',
+        ann_file=data_root + 'test.json',
         img_prefix=data_root,
         classes=classes,
         pipeline=test_pipeline))
