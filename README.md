@@ -10,9 +10,13 @@ bash tools/dist_test.sh 1
 ```
 
 ## Results
+||model|LB score|val_mAP50|
+|-|--|---------|--------|
+|01|UninerseNet|0.4834|0.466|
 
 
 
+<hr/>
 
 <div align="center">
   <img src="resources/mmdet-logo.png" width="600"/>
