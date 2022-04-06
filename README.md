@@ -21,8 +21,43 @@ bash tools/dist_test.sh 1
 |16|UniverseNet20.08d|0.5979|0.617|MultiScale 추가|
 
 
+<br>
 
+#### optimizer
+| |model               |LB score|val_mAP50|optimizer|LR|Epochs|
+|--|-----------------|------|-----|---|-|-|
+|02|UniverseNet20.08d|0.5039|0.408|SGD|0.002|24|
+|04|UniverseNet20.08d|0.489|0.474|Adam|0.0001|24|
+|05|UniverseNet20.08d|-|0.356|Adam|0.0003|34|
 
+<br>
+
+#### LR Scheduler
+| |model             |LB score|val_mAP50|Scheduler|
+|--|-----------------|-------|-----|---|
+|02|UniverseNet20.08d|0.5039|0.408|step|
+|03|UniverseNet20.08d|0.5656|0.515|CosineAnnealing|
+
+| |model             |LB score|val_mAP50|Scheduler|
+|--|-----------------|------|-----|------|
+|08|UniverseNet20.08d|0.5405|0.586|CosineAnnealing|
+|10|UniverseNet20.08d|------|0.515|cyclic|
+
+<br>
+
+#### Augmentation
+| |model             |LB score|val_mAP50|Augmentation|
+|--|-----------------|-------|-----|---|
+|03|UniverseNet20.08d|0.5656|0.515||
+|06|UniverseNet20.08d|0.5240|0.523|RandomRotate90 추가|
+|07|UniverseNet20.08d|0.4753|0.590|6번에서 여러가지 추가|
+
+| |model             |LB score|val_mAP50|Augmentation|
+|--|-----------------|-------|-----|---|
+|08|UniverseNet20.08d|0.5405|0.586|RandomRotate90|
+|09|UniverseNet20.08d|------|0.523|RandomRotate90, RandomResizedCrop|
+|11|UniverseNet20.08d|0.5423|0.579|RandomRotate90, HueSaturation, BrightnessContrast|
+|13|UniverseNet20.08d|0.5423|0.572|RandomRotate90, HueSaturation, BrightnessContrast,noise,blur|
 <hr/>
 
 <div align="center">
