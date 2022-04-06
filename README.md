@@ -14,7 +14,7 @@ bash tools/dist_test.sh 1
 |--|-----------------|------|-----|---|
 |01|UninerseNet      |0.4834|0.466||
 |02|UniverseNet20.08d|0.5039|0.408|UniverseNet20.08d로 변경|
-|03|UniverseNet20.08d|0.5656|0.515|CosineAnnealing 적용|
+|03|UniverseNet20.08d|0.5056|0.515|CosineAnnealing 적용|
 |06|UniverseNet20.08d|0.5240|0.523|RandomRotate90 추가|
 |08|UniverseNet20.08d|0.5405|0.586|MultiScale 추가|
 |13|UniverseNet20.08d|0.5423|0.579|Augmentation 추가|
@@ -36,7 +36,7 @@ bash tools/dist_test.sh 1
 | |model             |LB score|val_mAP50|Scheduler|
 |--|-----------------|-------|-----|---|
 |02|UniverseNet20.08d|0.5039|0.408|step|
-|03|UniverseNet20.08d|0.5656|0.515|CosineAnnealing|
+|03|UniverseNet20.08d|0.5056|0.515|CosineAnnealing|
 
 | |model             |LB score|val_mAP50|Scheduler|
 |--|-----------------|------|-----|------|
@@ -48,7 +48,7 @@ bash tools/dist_test.sh 1
 #### Augmentation
 | |model             |LB score|val_mAP50|Augmentation|
 |--|-----------------|-------|-----|---|
-|03|UniverseNet20.08d|0.5656|0.515||
+|03|UniverseNet20.08d|0.5056|0.515||
 |06|UniverseNet20.08d|0.5240|0.523|RandomRotate90 추가|
 |07|UniverseNet20.08d|0.4753|0.590|6번에서 여러가지 추가|
 
