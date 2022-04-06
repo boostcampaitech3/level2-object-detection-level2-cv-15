@@ -10,9 +10,16 @@ bash tools/dist_test.sh 1
 ```
 
 ## Results
-||model|LB score|val_mAP50|
-|-|--|---------|--------|
-|01|UninerseNet|0.4834|0.466|
+| |model               |LB score|val_mAP50||
+|--|-----------------|------|-----|---|
+|01|UninerseNet      |0.4834|0.466||
+|02|UniverseNet20.08d|0.5039|0.408|UniverseNet20.08d로 변경|
+|03|UniverseNet20.08d|0.5656|0.515|CosineAnnealing 적용|
+|06|UniverseNet20.08d|0.5240|0.523|RandomRotate90 추가|
+|08|UniverseNet20.08d|0.5405|0.586|MultiScale 추가|
+|13|UniverseNet20.08d|0.5423|0.579|Augmentation 추가|
+|16|UniverseNet20.08d|0.5979|0.617|MultiScale 추가|
+
 
 
 
