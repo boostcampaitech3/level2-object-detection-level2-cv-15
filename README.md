@@ -58,8 +58,15 @@ bash tools/dist_test.sh 1
 |09|UniverseNet20.08d|------|0.523|RandomRotate90, RandomResizedCrop|
 |11|UniverseNet20.08d|0.5423|0.579|RandomRotate90, HueSaturation, BrightnessContrast|
 |13|UniverseNet20.08d|0.5423|0.572|RandomRotate90, HueSaturation, BrightnessContrast,noise,blur|
-<hr/>
 
+#### Img Size
+(512,512)
+[(512,512),(1024,1024)]
+[(1024,1024), (2048,2048)]
+[(512,512),(2048,2048)]
+[(256,256),(512,512)]
+
+<hr/>
 <div align="center">
   <img src="resources/mmdet-logo.png" width="600"/>
 </div>
