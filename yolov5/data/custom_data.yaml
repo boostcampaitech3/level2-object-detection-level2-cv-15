@@ -1,0 +1,7 @@
+train: /opt/ml/detection/dataset/YOLO/cv_train_1.txt  # train images (relative to 'path') 118287 images
+val: /opt/ml/detection/dataset/YOLO/cv_val_1.txt  # val images (relative to 'path') 5000 images
+test: /opt/ml/detection/dataset/test  # 20288 of 40670 images, submit to https://competitions.codalab.org/competitions/20794
+
+# Classes
+nc: 10  # number of classes
+names: ['General trash', 'Paper', 'Paper pack', 'Metal', 'Glass', 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery', 'Clothing']
