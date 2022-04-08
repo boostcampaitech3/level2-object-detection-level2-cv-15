@@ -1,6 +1,6 @@
 ## Train
 ```
-bash tools/dist_train.sh config/_a/20_5.py 1 --work-dir work_dir/20_5
+bash tools/dist_train.sh config/_a/20_5.py 1 --work-dir work_dir/20_5 --seed 42
 ```
 
 ## Inference
@@ -19,6 +19,8 @@ bash tools/dist_test.sh 1
 |08|UniverseNet20.08d|0.5405|0.586|MultiScale 추가|
 |13|UniverseNet20.08d|0.5423|0.579|Augmentation 추가|
 |16|UniverseNet20.08d|0.5979|0.617|MultiScale 추가|
+|20|UniverseNet20.08d|0.6032|0.592|데이터 수정|
+|20|UniverseNet20.08d|<b>0.6110|-|TTA|
 
 
 <br>
@@ -26,7 +28,7 @@ bash tools/dist_test.sh 1
 #### optimizer
 | |model               |LB score|val_mAP50|optimizer|LR|Epochs|
 |--|-----------------|------|-----|---|-|-|
-|02|UniverseNet20.08d|0.5039|0.408|SGD|0.002|24|
+|02|UniverseNet20.08d|<b>0.5039|0.408|SGD|0.002|24|
 |04|UniverseNet20.08d|0.489|0.474|Adam|0.0001|24|
 |05|UniverseNet20.08d|-|0.356|Adam|0.0003|34|
 
@@ -40,7 +42,7 @@ bash tools/dist_test.sh 1
 
 | |model             |LB score|val_mAP50|Scheduler|
 |--|-----------------|------|-----|------|
-|08|UniverseNet20.08d|0.5405|0.586|CosineAnnealing|
+|08|UniverseNet20.08d|<b>0.5405|0.586|CosineAnnealing|
 |10|UniverseNet20.08d|------|0.515|cyclic|
 
 <br>
@@ -57,14 +59,33 @@ bash tools/dist_test.sh 1
 |08|UniverseNet20.08d|0.5405|0.586|RandomRotate90|
 |09|UniverseNet20.08d|------|0.523|RandomRotate90, RandomResizedCrop|
 |11|UniverseNet20.08d|0.5423|0.579|RandomRotate90, HueSaturation, BrightnessContrast|
-|13|UniverseNet20.08d|0.5423|0.572|RandomRotate90, HueSaturation, BrightnessContrast,noise,blur|
-
+|12|UniverseNet20.08d|0.5303|0.550|RandomRotate90, HueSaturation, BrightnessContrast, Mosaic|
+|13|UniverseNet20.08d|<b>0.5423|0.572|RandomRotate90, HueSaturation, BrightnessContrast,noise,blur|
+<br>
+  
 #### Img Size
-(512,512)
-[(512,512),(1024,1024)]
-[(1024,1024), (2048,2048)]
-[(512,512),(2048,2048)]
-[(256,256),(512,512)]
+
+
+| |model             |LB score|val_mAP50|img_scale|
+|--|-----------------|-------|-----|---|
+|06|UniverseNet20.08d|0.5240|0.523|(512,512)|
+|08|UniverseNet20.08d|0.5405|0.586|[(512,512),(1024,1024)]|
+
+
+| |model             |LB score|val_mAP50|img_scale|
+|--|-----------------|-------|-----|---|
+|13|UniverseNet20.08d|0.5423|0.572|[(512,512),(1024,1024)]|
+|16|UniverseNet20.08d|<b>0.5979|0.617|[(512,512),(2048,2048)]|
+
+| |model             |LB score|val_mAP50|img_scale|
+|--|-----------------|-------|-----|---|
+|17|UniverseNet20.08s|-|0.453|[(512,512),(2048,2048)]|
+|18|UniverseNet20.08s|-|0.442|[(1024,1024), (2048,2048)]|
+
+<br>
+
+#### TTA
+  
 
 <hr/>
 <div align="center">
