@@ -1,0 +1,1168 @@
+2022-04-05 07:37:55,329 - mmdet - INFO - Environment info:
+------------------------------------------------------------
+sys.platform: linux
+Python: 3.7.11 (default, Jul 27 2021, 14:32:16) [GCC 7.5.0]
+CUDA available: True
+GPU 0: Tesla V100-PCIE-32GB
+CUDA_HOME: None
+GCC: gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0
+PyTorch: 1.7.1
+PyTorch compiling details: PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - Intel(R) oneAPI Math Kernel Library Version 2021.4-Product Build 20210904 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v1.6.0 (Git Hash 5ef631a030a6f73131c77892041042805a06064f)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 11.0
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_37,code=compute_37
+  - CuDNN 8.0.5
+  - Magma 2.5.2
+  - Build settings: BLAS=MKL, BUILD_TYPE=Release, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DUSE_VULKAN_WRAPPER -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, USE_CUDA=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, 
+
+TorchVision: 0.8.2
+OpenCV: 4.5.5
+MMCV: 1.4.8
+MMCV Compiler: GCC 7.3
+MMCV CUDA Compiler: 11.0
+MMDetection: 2.22.0+6ddbff8
+------------------------------------------------------------
+
+2022-04-05 07:37:55,724 - mmdet - INFO - Distributed training: False
+2022-04-05 07:37:56,095 - mmdet - INFO - Config:
+dataset_type = 'CocoDataset'
+data_root = '/opt/ml/detection/dataset/'
+img_norm_cfg = dict(
+    mean=[103.53, 116.28, 123.675], std=[1.0, 1.0, 1.0], to_rgb=False)
+train_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(
+        type='Resize',
+        img_scale=(1333, 800),
+        keep_ratio=True,
+        backend='pillow'),
+    dict(type='RandomFlip', flip_ratio=0.5),
+    dict(
+        type='Normalize',
+        mean=[103.53, 116.28, 123.675],
+        std=[1.0, 1.0, 1.0],
+        to_rgb=False),
+    dict(type='Pad', size_divisor=128),
+    dict(type='DefaultFormatBundle'),
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+]
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(
+        type='MultiScaleFlipAug',
+        img_scale=(1333, 800),
+        flip=False,
+        transforms=[
+            dict(type='Resize', keep_ratio=True, backend='pillow'),
+            dict(type='RandomFlip'),
+            dict(
+                type='Normalize',
+                mean=[103.53, 116.28, 123.675],
+                std=[1.0, 1.0, 1.0],
+                to_rgb=False),
+            dict(type='Pad', size_divisor=128),
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='Collect', keys=['img'])
+        ])
+]
+data = dict(
+    samples_per_gpu=2,
+    workers_per_gpu=2,
+    train=dict(
+        type='CocoDataset',
+        ann_file='/opt/ml/detection/dataset/cv_train_1.json',
+        img_prefix='/opt/ml/detection/dataset/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(type='LoadAnnotations', with_bbox=True),
+            dict(
+                type='Resize',
+                img_scale=(512, 512),
+                keep_ratio=True,
+                backend='pillow'),
+            dict(type='RandomFlip', flip_ratio=0.5),
+            dict(
+                type='Normalize',
+                mean=[103.53, 116.28, 123.675],
+                std=[1.0, 1.0, 1.0],
+                to_rgb=False),
+            dict(type='Pad', size_divisor=128),
+            dict(type='DefaultFormatBundle'),
+            dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+        ],
+        classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery',
+                 'Clothing')),
+    val=dict(
+        type='CocoDataset',
+        ann_file='/opt/ml/detection/dataset/cv_val_1.json',
+        img_prefix='/opt/ml/detection/dataset/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(512, 512),
+                flip=False,
+                transforms=[
+                    dict(type='Resize', keep_ratio=True, backend='pillow'),
+                    dict(type='RandomFlip'),
+                    dict(
+                        type='Normalize',
+                        mean=[103.53, 116.28, 123.675],
+                        std=[1.0, 1.0, 1.0],
+                        to_rgb=False),
+                    dict(type='Pad', size_divisor=128),
+                    dict(type='ImageToTensor', keys=['img']),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ],
+        classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery',
+                 'Clothing')),
+    test=dict(
+        type='CocoDataset',
+        ann_file='/opt/ml/detection/dataset/test.json',
+        img_prefix='/opt/ml/detection/dataset/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(512, 512),
+                flip=False,
+                transforms=[
+                    dict(type='Resize', keep_ratio=True, backend='pillow'),
+                    dict(type='RandomFlip'),
+                    dict(
+                        type='Normalize',
+                        mean=[103.53, 116.28, 123.675],
+                        std=[1.0, 1.0, 1.0],
+                        to_rgb=False),
+                    dict(type='Pad', size_divisor=128),
+                    dict(type='ImageToTensor', keys=['img']),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ],
+        classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery',
+                 'Clothing')))
+evaluation = dict(interval=1, metric='bbox')
+optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
+optimizer_config = dict(grad_clip=None)
+lr_config = dict(
+    policy='step',
+    warmup='linear',
+    warmup_iters=500,
+    warmup_ratio=0.001,
+    step=[8, 11])
+runner = dict(type='EpochBasedRunner', max_epochs=36)
+checkpoint_config = dict(interval=1)
+log_config = dict(
+    interval=200, hooks=[dict(type='TextLoggerHook', interval=400)])
+custom_hooks = [dict(type='NumClassCheckHook')]
+dist_params = dict(backend='nccl')
+log_level = 'INFO'
+load_from = None
+resume_from = None
+workflow = [('train', 1), ('val', 1)]
+opencv_num_threads = 0
+mp_start_method = 'fork'
+model = dict(
+    type='ATSS',
+    backbone=dict(
+        type='ResNet',
+        depth=50,
+        num_stages=4,
+        out_indices=(0, 1, 2, 3),
+        frozen_stages=1,
+        norm_cfg=dict(type='BN', requires_grad=False),
+        norm_eval=True,
+        style='caffe',
+        init_cfg=dict(
+            type='Pretrained',
+            checkpoint='open-mmlab://detectron2/resnet50_caffe')),
+    neck=[
+        dict(
+            type='FPN',
+            in_channels=[256, 512, 1024, 2048],
+            out_channels=256,
+            start_level=1,
+            add_extra_convs='on_output',
+            num_outs=5),
+        dict(
+            type='DyHead',
+            in_channels=256,
+            out_channels=256,
+            num_blocks=6,
+            zero_init_offset=False)
+    ],
+    bbox_head=dict(
+        type='ATSSHead',
+        num_classes=10,
+        in_channels=256,
+        pred_kernel_size=1,
+        stacked_convs=0,
+        feat_channels=256,
+        anchor_generator=dict(
+            type='AnchorGenerator',
+            ratios=[1.0],
+            octave_base_scale=8,
+            scales_per_octave=1,
+            strides=[8, 16, 32, 64, 128],
+            center_offset=0.5),
+        bbox_coder=dict(
+            type='DeltaXYWHBBoxCoder',
+            target_means=[0.0, 0.0, 0.0, 0.0],
+            target_stds=[0.1, 0.1, 0.2, 0.2]),
+        loss_cls=dict(
+            type='FocalLoss',
+            use_sigmoid=True,
+            gamma=2.0,
+            alpha=0.25,
+            loss_weight=1.0),
+        loss_bbox=dict(type='GIoULoss', loss_weight=2.0),
+        loss_centerness=dict(
+            type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0)),
+    train_cfg=dict(
+        assigner=dict(type='ATSSAssigner', topk=9),
+        allowed_border=-1,
+        pos_weight=-1,
+        debug=False),
+    test_cfg=dict(
+        nms_pre=1000,
+        min_bbox_size=0,
+        score_thr=0.05,
+        nms=dict(type='nms', iou_threshold=0.6),
+        max_per_img=100))
+work_dir = './work_dirs/MM_85/1'
+auto_resume = False
+gpu_ids = [0]
+
+2022-04-05 07:37:56,096 - mmdet - INFO - Set random seed to 2022, deterministic: False
+2022-04-05 07:37:56,610 - mmdet - INFO - initialize ResNet with init_cfg {'type': 'Pretrained', 'checkpoint': 'open-mmlab://detectron2/resnet50_caffe'}
+2022-04-05 07:37:56,714 - mmdet - INFO - initialize FPN with init_cfg {'type': 'Xavier', 'layer': 'Conv2d', 'distribution': 'uniform'}
+2022-04-05 07:37:56,758 - mmdet - INFO - initialize ATSSHead with init_cfg {'type': 'Normal', 'layer': 'Conv2d', 'std': 0.01, 'override': {'type': 'Normal', 'name': 'atss_cls', 'std': 0.01, 'bias_prob': 0.01}}
+Name of parameter - Initialization information
+
+backbone.conv1.weight - torch.Size([64, 3, 7, 7]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.bn1.weight - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.bn1.bias - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.conv1.weight - torch.Size([64, 64, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.bn1.weight - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.bn1.bias - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.conv2.weight - torch.Size([64, 64, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.bn2.weight - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.bn2.bias - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.conv3.weight - torch.Size([256, 64, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.bn3.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.bn3.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.downsample.0.weight - torch.Size([256, 64, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.downsample.1.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.0.downsample.1.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.1.conv1.weight - torch.Size([64, 256, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.1.bn1.weight - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.1.bn1.bias - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.1.conv2.weight - torch.Size([64, 64, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.1.bn2.weight - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.1.bn2.bias - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.1.conv3.weight - torch.Size([256, 64, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.1.bn3.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.1.bn3.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.2.conv1.weight - torch.Size([64, 256, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.2.bn1.weight - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.2.bn1.bias - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.2.conv2.weight - torch.Size([64, 64, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.2.bn2.weight - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.2.bn2.bias - torch.Size([64]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.2.conv3.weight - torch.Size([256, 64, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.2.bn3.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer1.2.bn3.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.conv1.weight - torch.Size([128, 256, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.bn1.weight - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.bn1.bias - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.conv2.weight - torch.Size([128, 128, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.bn2.weight - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.bn2.bias - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.conv3.weight - torch.Size([512, 128, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.bn3.weight - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.bn3.bias - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.downsample.0.weight - torch.Size([512, 256, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.downsample.1.weight - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.0.downsample.1.bias - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.1.conv1.weight - torch.Size([128, 512, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.1.bn1.weight - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.1.bn1.bias - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.1.conv2.weight - torch.Size([128, 128, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.1.bn2.weight - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.1.bn2.bias - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.1.conv3.weight - torch.Size([512, 128, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.1.bn3.weight - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.1.bn3.bias - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.2.conv1.weight - torch.Size([128, 512, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.2.bn1.weight - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.2.bn1.bias - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.2.conv2.weight - torch.Size([128, 128, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.2.bn2.weight - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.2.bn2.bias - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.2.conv3.weight - torch.Size([512, 128, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.2.bn3.weight - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.2.bn3.bias - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.3.conv1.weight - torch.Size([128, 512, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.3.bn1.weight - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.3.bn1.bias - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.3.conv2.weight - torch.Size([128, 128, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.3.bn2.weight - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.3.bn2.bias - torch.Size([128]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.3.conv3.weight - torch.Size([512, 128, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.3.bn3.weight - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer2.3.bn3.bias - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.conv1.weight - torch.Size([256, 512, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.bn1.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.bn1.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.conv2.weight - torch.Size([256, 256, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.bn2.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.bn2.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.conv3.weight - torch.Size([1024, 256, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.bn3.weight - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.bn3.bias - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.downsample.0.weight - torch.Size([1024, 512, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.downsample.1.weight - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.0.downsample.1.bias - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.1.conv1.weight - torch.Size([256, 1024, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.1.bn1.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.1.bn1.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.1.conv2.weight - torch.Size([256, 256, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.1.bn2.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.1.bn2.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.1.conv3.weight - torch.Size([1024, 256, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.1.bn3.weight - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.1.bn3.bias - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.2.conv1.weight - torch.Size([256, 1024, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.2.bn1.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.2.bn1.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.2.conv2.weight - torch.Size([256, 256, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.2.bn2.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.2.bn2.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.2.conv3.weight - torch.Size([1024, 256, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.2.bn3.weight - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.2.bn3.bias - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.3.conv1.weight - torch.Size([256, 1024, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.3.bn1.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.3.bn1.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.3.conv2.weight - torch.Size([256, 256, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.3.bn2.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.3.bn2.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.3.conv3.weight - torch.Size([1024, 256, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.3.bn3.weight - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.3.bn3.bias - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.4.conv1.weight - torch.Size([256, 1024, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.4.bn1.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.4.bn1.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.4.conv2.weight - torch.Size([256, 256, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.4.bn2.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.4.bn2.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.4.conv3.weight - torch.Size([1024, 256, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.4.bn3.weight - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.4.bn3.bias - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.5.conv1.weight - torch.Size([256, 1024, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.5.bn1.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.5.bn1.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.5.conv2.weight - torch.Size([256, 256, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.5.bn2.weight - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.5.bn2.bias - torch.Size([256]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.5.conv3.weight - torch.Size([1024, 256, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.5.bn3.weight - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer3.5.bn3.bias - torch.Size([1024]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.conv1.weight - torch.Size([512, 1024, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.bn1.weight - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.bn1.bias - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.conv2.weight - torch.Size([512, 512, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.bn2.weight - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.bn2.bias - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.conv3.weight - torch.Size([2048, 512, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.bn3.weight - torch.Size([2048]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.bn3.bias - torch.Size([2048]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.downsample.0.weight - torch.Size([2048, 1024, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.downsample.1.weight - torch.Size([2048]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.0.downsample.1.bias - torch.Size([2048]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.1.conv1.weight - torch.Size([512, 2048, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.1.bn1.weight - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.1.bn1.bias - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.1.conv2.weight - torch.Size([512, 512, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.1.bn2.weight - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.1.bn2.bias - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.1.conv3.weight - torch.Size([2048, 512, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.1.bn3.weight - torch.Size([2048]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.1.bn3.bias - torch.Size([2048]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.2.conv1.weight - torch.Size([512, 2048, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.2.bn1.weight - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.2.bn1.bias - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.2.conv2.weight - torch.Size([512, 512, 3, 3]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.2.bn2.weight - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.2.bn2.bias - torch.Size([512]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.2.conv3.weight - torch.Size([2048, 512, 1, 1]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.2.bn3.weight - torch.Size([2048]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+backbone.layer4.2.bn3.bias - torch.Size([2048]): 
+PretrainedInit: load from open-mmlab://detectron2/resnet50_caffe 
+
+neck.0.lateral_convs.0.conv.weight - torch.Size([256, 512, 1, 1]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.lateral_convs.0.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.lateral_convs.1.conv.weight - torch.Size([256, 1024, 1, 1]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.lateral_convs.1.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.lateral_convs.2.conv.weight - torch.Size([256, 2048, 1, 1]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.lateral_convs.2.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.fpn_convs.0.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.fpn_convs.0.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.fpn_convs.1.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.fpn_convs.1.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.fpn_convs.2.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.fpn_convs.2.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.fpn_convs.3.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.fpn_convs.3.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.fpn_convs.4.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.fpn_convs.4.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+bbox_head.atss_cls.weight - torch.Size([10, 256, 1, 1]): 
+NormalInit: mean=0, std=0.01, bias=-4.59511985013459 
+
+bbox_head.atss_cls.bias - torch.Size([10]): 
+NormalInit: mean=0, std=0.01, bias=-4.59511985013459 
+
+bbox_head.atss_reg.weight - torch.Size([4, 256, 1, 1]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+bbox_head.atss_reg.bias - torch.Size([4]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+bbox_head.atss_centerness.weight - torch.Size([1, 256, 1, 1]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+bbox_head.atss_centerness.bias - torch.Size([1]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+bbox_head.scales.0.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+bbox_head.scales.1.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+bbox_head.scales.2.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+bbox_head.scales.3.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+bbox_head.scales.4.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of ATSS  
+2022-04-05 07:37:59,773 - mmdet - INFO - Start running, host: root@71b0d7392d91, work_dir: /opt/ml/detection/baseline/mmdetection/work_dirs/MM_85/1
+2022-04-05 07:37:59,773 - mmdet - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) CheckpointHook                     
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_epoch:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) NumClassCheckHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_train_iter:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+ -------------------- 
+after_train_iter:
+(ABOVE_NORMAL) OptimizerHook                      
+(NORMAL      ) CheckpointHook                     
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_train_epoch:
+(NORMAL      ) CheckpointHook                     
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_epoch:
+(NORMAL      ) NumClassCheckHook                  
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+before_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_epoch:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+after_run:
+(VERY_LOW    ) TextLoggerHook                     
+ -------------------- 
+2022-04-05 07:37:59,773 - mmdet - INFO - workflow: [('train', 1), ('val', 1)], max: 36 epochs
+2022-04-05 07:37:59,774 - mmdet - INFO - Checkpoints will be saved to /opt/ml/detection/baseline/mmdetection/work_dirs/MM_85/1 by HardDiskBackend.
+2022-04-05 07:40:15,635 - mmdet - INFO - Epoch [1][400/1954]	lr: 7.982e-03, eta: 6:35:53, time: 0.340, data_time: 0.009, memory: 1435, loss_cls: 0.7807, loss_bbox: 1.0298, loss_centerness: 0.6440, loss: 2.4546
+2022-04-05 07:42:27,893 - mmdet - INFO - Epoch [1][800/1954]	lr: 1.000e-02, eta: 6:28:24, time: 0.331, data_time: 0.004, memory: 1435, loss_cls: 0.7029, loss_bbox: 0.9998, loss_centerness: 0.6367, loss: 2.3394

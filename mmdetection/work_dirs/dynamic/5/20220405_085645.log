@@ -1,0 +1,2097 @@
+2022-04-05 08:56:46,569 - mmdet - INFO - Environment info:
+------------------------------------------------------------
+sys.platform: linux
+Python: 3.7.11 (default, Jul 27 2021, 14:32:16) [GCC 7.5.0]
+CUDA available: True
+GPU 0: Tesla V100-PCIE-32GB
+CUDA_HOME: None
+GCC: gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0
+PyTorch: 1.7.1
+PyTorch compiling details: PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - Intel(R) oneAPI Math Kernel Library Version 2021.4-Product Build 20210904 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v1.6.0 (Git Hash 5ef631a030a6f73131c77892041042805a06064f)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 11.0
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_37,code=compute_37
+  - CuDNN 8.0.5
+  - Magma 2.5.2
+  - Build settings: BLAS=MKL, BUILD_TYPE=Release, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DUSE_VULKAN_WRAPPER -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, USE_CUDA=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, 
+
+TorchVision: 0.8.2
+OpenCV: 4.5.5
+MMCV: 1.4.8
+MMCV Compiler: GCC 7.3
+MMCV CUDA Compiler: 11.0
+MMDetection: 2.22.0+6ddbff8
+------------------------------------------------------------
+
+2022-04-05 08:56:48,056 - mmdet - INFO - Distributed training: False
+2022-04-05 08:56:49,448 - mmdet - INFO - Config:
+dataset_type = 'CocoDataset'
+data_root = '../dataset/'
+classes = [
+    'General trash', 'Paper', 'Paper pack', 'Metal', 'Glass', 'Plastic',
+    'Styrofoam', 'Plastic bag', 'Battery', 'Clothing'
+]
+img_norm_cfg = dict(
+    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+albu_train_transforms = [
+    dict(
+        type='OneOf',
+        transforms=[
+            dict(type='Flip', p=1.0),
+            dict(type='RandomRotate90', p=1.0)
+        ],
+        p=0.5),
+    dict(
+        type='RandomResizedCrop',
+        height=768,
+        width=768,
+        scale=(0.5, 1.0),
+        p=0.5),
+    dict(
+        type='RandomBrightnessContrast',
+        brightness_limit=0.1,
+        contrast_limit=0.15,
+        p=0.5),
+    dict(
+        type='HueSaturationValue',
+        hue_shift_limit=15,
+        sat_shift_limit=25,
+        val_shift_limit=10,
+        p=0.5),
+    dict(type='GaussNoise', p=0.3),
+    dict(
+        type='OneOf',
+        transforms=[
+            dict(type='Blur', p=1.0),
+            dict(type='GaussianBlur', p=1.0),
+            dict(type='MedianBlur', blur_limit=5, p=1.0),
+            dict(type='MotionBlur', p=1.0)
+        ],
+        p=0.1)
+]
+train_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='Resize', img_scale=(768, 768), keep_ratio=True),
+    dict(type='RandomFlip', flip_ratio=0.0),
+    dict(
+        type='Albu',
+        transforms=[
+            dict(
+                type='OneOf',
+                transforms=[
+                    dict(type='Flip', p=1.0),
+                    dict(type='RandomRotate90', p=1.0)
+                ],
+                p=0.5),
+            dict(
+                type='RandomResizedCrop',
+                height=768,
+                width=768,
+                scale=(0.5, 1.0),
+                p=0.5),
+            dict(
+                type='RandomBrightnessContrast',
+                brightness_limit=0.1,
+                contrast_limit=0.15,
+                p=0.5),
+            dict(
+                type='HueSaturationValue',
+                hue_shift_limit=15,
+                sat_shift_limit=25,
+                val_shift_limit=10,
+                p=0.5),
+            dict(type='GaussNoise', p=0.3),
+            dict(
+                type='OneOf',
+                transforms=[
+                    dict(type='Blur', p=1.0),
+                    dict(type='GaussianBlur', p=1.0),
+                    dict(type='MedianBlur', blur_limit=5, p=1.0),
+                    dict(type='MotionBlur', p=1.0)
+                ],
+                p=0.1)
+        ],
+        bbox_params=dict(
+            type='BboxParams',
+            format='pascal_voc',
+            label_fields=['gt_labels'],
+            min_visibility=0.0,
+            filter_lost_elements=True),
+        keymap=dict(img='image', gt_bboxes='bboxes'),
+        update_pad_shape=False,
+        skip_img_without_anno=True),
+    dict(
+        type='Normalize',
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_rgb=True),
+    dict(type='Pad', size_divisor=32),
+    dict(type='DefaultFormatBundle'),
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+]
+valid_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(
+        type='MultiScaleFlipAug',
+        img_scale=(1024, 1024),
+        flip=False,
+        transforms=[
+            dict(type='Resize', keep_ratio=True),
+            dict(type='RandomFlip'),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='Pad', size_divisor=32),
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='Collect', keys=['img'])
+        ])
+]
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(
+        type='MultiScaleFlipAug',
+        img_scale=(1024, 1024),
+        flip=True,
+        flip_direction=['horizontal', 'vertical', 'diagonal'],
+        transforms=[
+            dict(type='Resize', keep_ratio=True),
+            dict(type='RandomFlip'),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='Pad', size_divisor=32),
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='Collect', keys=['img'])
+        ])
+]
+data = dict(
+    samples_per_gpu=10,
+    workers_per_gpu=3,
+    train=dict(
+        type='CocoDataset',
+        ann_file='/opt/ml/detection/dataset/cv_train_1.json',
+        img_prefix='/opt/ml/detection/dataset/',
+        classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery', 'Clothing'),
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(type='LoadAnnotations', with_bbox=True),
+            dict(type='Resize', img_scale=(768, 768), keep_ratio=True),
+            dict(type='RandomFlip', flip_ratio=0.0),
+            dict(
+                type='Albu',
+                transforms=[
+                    dict(
+                        type='OneOf',
+                        transforms=[
+                            dict(type='Flip', p=1.0),
+                            dict(type='RandomRotate90', p=1.0)
+                        ],
+                        p=0.5),
+                    dict(
+                        type='RandomResizedCrop',
+                        height=768,
+                        width=768,
+                        scale=(0.5, 1.0),
+                        p=0.5),
+                    dict(
+                        type='RandomBrightnessContrast',
+                        brightness_limit=0.1,
+                        contrast_limit=0.15,
+                        p=0.5),
+                    dict(
+                        type='HueSaturationValue',
+                        hue_shift_limit=15,
+                        sat_shift_limit=25,
+                        val_shift_limit=10,
+                        p=0.5),
+                    dict(type='GaussNoise', p=0.3),
+                    dict(
+                        type='OneOf',
+                        transforms=[
+                            dict(type='Blur', p=1.0),
+                            dict(type='GaussianBlur', p=1.0),
+                            dict(type='MedianBlur', blur_limit=5, p=1.0),
+                            dict(type='MotionBlur', p=1.0)
+                        ],
+                        p=0.1)
+                ],
+                bbox_params=dict(
+                    type='BboxParams',
+                    format='pascal_voc',
+                    label_fields=['gt_labels'],
+                    min_visibility=0.0,
+                    filter_lost_elements=True),
+                keymap=dict(img='image', gt_bboxes='bboxes'),
+                update_pad_shape=False,
+                skip_img_without_anno=True),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='Pad', size_divisor=32),
+            dict(type='DefaultFormatBundle'),
+            dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+        ]),
+    val=dict(
+        type='CocoDataset',
+        ann_file='/opt/ml/detection/dataset/cv_val_1.json',
+        img_prefix='/opt/ml/detection/dataset/',
+        classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery', 'Clothing'),
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(1024, 1024),
+                flip=False,
+                transforms=[
+                    dict(type='Resize', keep_ratio=True),
+                    dict(type='RandomFlip'),
+                    dict(
+                        type='Normalize',
+                        mean=[123.675, 116.28, 103.53],
+                        std=[58.395, 57.12, 57.375],
+                        to_rgb=True),
+                    dict(type='Pad', size_divisor=32),
+                    dict(type='ImageToTensor', keys=['img']),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ]),
+    test=dict(
+        type='CocoDataset',
+        ann_file='/opt/ml/detection/dataset/test.json',
+        img_prefix='/opt/ml/detection/dataset/',
+        classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery', 'Clothing'),
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(1024, 1024),
+                flip=True,
+                flip_direction=['horizontal', 'vertical', 'diagonal'],
+                transforms=[
+                    dict(type='Resize', keep_ratio=True),
+                    dict(type='RandomFlip'),
+                    dict(
+                        type='Normalize',
+                        mean=[123.675, 116.28, 103.53],
+                        std=[58.395, 57.12, 57.375],
+                        to_rgb=True),
+                    dict(type='Pad', size_divisor=32),
+                    dict(type='ImageToTensor', keys=['img']),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ]))
+evaluation = dict(interval=1, metric='bbox')
+optimizer = dict(
+    type='AdamW',
+    lr=0.0001,
+    betas=(0.9, 0.999),
+    weight_decay=0.05,
+    paramwise_cfg=dict(
+        custom_keys=dict(
+            absolute_pos_embed=dict(decay_mult=0.0),
+            relative_position_bias_table=dict(decay_mult=0.0),
+            norm=dict(decay_mult=0.0))))
+optimizer_config = dict(grad_clip=None)
+lr_config = dict(
+    policy='step',
+    warmup='linear',
+    warmup_iters=500,
+    warmup_ratio=0.001,
+    step=[8, 11])
+runner = dict(type='EpochBasedRunner', max_epochs=36)
+checkpoint_config = dict(interval=1)
+log_config = dict(
+    interval=100,
+    hooks=[
+        dict(type='TextLoggerHook', interval=100),
+        dict(
+            type='WandbLoggerHook',
+            interval=100,
+            init_kwargs=dict(
+                project='objectdetection', name='dynamic_head_ATSS_f5'))
+    ])
+custom_hooks = [dict(type='NumClassCheckHook')]
+dist_params = dict(backend='nccl')
+log_level = 'INFO'
+load_from = None
+resume_from = None
+workflow = [('train', 1), ('val', 1)]
+opencv_num_threads = 0
+mp_start_method = 'fork'
+pretrained = 'https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_small_patch4_window7_224.pth'
+model = dict(
+    type='ATSS',
+    backbone=dict(
+        type='SwinTransformer',
+        embed_dims=96,
+        depths=[2, 2, 18, 2],
+        num_heads=[3, 6, 12, 24],
+        window_size=7,
+        mlp_ratio=4,
+        qkv_bias=True,
+        qk_scale=None,
+        drop_rate=0.0,
+        attn_drop_rate=0.0,
+        drop_path_rate=0.2,
+        patch_norm=True,
+        out_indices=(0, 1, 2, 3),
+        with_cp=False,
+        convert_weights=True,
+        init_cfg=dict(
+            type='Pretrained',
+            checkpoint=
+            'https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_small_patch4_window7_224.pth'
+        )),
+    neck=[
+        dict(
+            type='FPN',
+            in_channels=[96, 192, 384, 768],
+            out_channels=256,
+            start_level=1,
+            add_extra_convs='on_output',
+            num_outs=5),
+        dict(
+            type='DyHead',
+            in_channels=256,
+            out_channels=256,
+            num_blocks=6,
+            zero_init_offset=False)
+    ],
+    bbox_head=dict(
+        type='ATSSHead',
+        num_classes=10,
+        in_channels=256,
+        pred_kernel_size=1,
+        stacked_convs=0,
+        feat_channels=256,
+        anchor_generator=dict(
+            type='AnchorGenerator',
+            ratios=[1.0],
+            octave_base_scale=8,
+            scales_per_octave=1,
+            strides=[8, 16, 32, 64, 128],
+            center_offset=0.5),
+        bbox_coder=dict(
+            type='DeltaXYWHBBoxCoder',
+            target_means=[0.0, 0.0, 0.0, 0.0],
+            target_stds=[0.1, 0.1, 0.2, 0.2]),
+        loss_cls=dict(
+            type='FocalLoss',
+            use_sigmoid=True,
+            gamma=2.0,
+            alpha=0.25,
+            loss_weight=1.0),
+        loss_bbox=dict(type='GIoULoss', loss_weight=2.0),
+        loss_centerness=dict(
+            type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0)),
+    train_cfg=dict(
+        assigner=dict(type='ATSSAssigner', topk=9),
+        allowed_border=-1,
+        pos_weight=-1,
+        debug=False),
+    test_cfg=dict(
+        nms_pre=1000,
+        min_bbox_size=0,
+        score_thr=0.05,
+        nms=dict(type='nms', iou_threshold=0.6),
+        max_per_img=100))
+work_dir = './work_dirs/dynamic/5'
+auto_resume = False
+gpu_ids = [0]
+
+2022-04-05 08:56:49,449 - mmdet - INFO - Set random seed to 2022, deterministic: False
+2022-04-05 08:56:50,351 - mmdet - INFO - load checkpoint from http path: https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_small_patch4_window7_224.pth
+2022-04-05 08:56:50,653 - mmdet - INFO - initialize FPN with init_cfg {'type': 'Xavier', 'layer': 'Conv2d', 'distribution': 'uniform'}
+2022-04-05 08:56:50,701 - mmdet - INFO - initialize ATSSHead with init_cfg {'type': 'Normal', 'layer': 'Conv2d', 'std': 0.01, 'override': {'type': 'Normal', 'name': 'atss_cls', 'std': 0.01, 'bias_prob': 0.01}}
+Name of parameter - Initialization information
+
+backbone.patch_embed.projection.weight - torch.Size([96, 3, 4, 4]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.patch_embed.projection.bias - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.patch_embed.norm.weight - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.patch_embed.norm.bias - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.norm1.weight - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.norm1.bias - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.attn.w_msa.relative_position_bias_table - torch.Size([169, 3]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.attn.w_msa.qkv.weight - torch.Size([288, 96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.attn.w_msa.qkv.bias - torch.Size([288]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.attn.w_msa.proj.weight - torch.Size([96, 96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.attn.w_msa.proj.bias - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.norm2.weight - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.norm2.bias - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.ffn.layers.0.0.weight - torch.Size([384, 96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.ffn.layers.0.0.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.ffn.layers.1.weight - torch.Size([96, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.0.ffn.layers.1.bias - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.norm1.weight - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.norm1.bias - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.attn.w_msa.relative_position_bias_table - torch.Size([169, 3]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.attn.w_msa.qkv.weight - torch.Size([288, 96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.attn.w_msa.qkv.bias - torch.Size([288]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.attn.w_msa.proj.weight - torch.Size([96, 96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.attn.w_msa.proj.bias - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.norm2.weight - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.norm2.bias - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.ffn.layers.0.0.weight - torch.Size([384, 96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.ffn.layers.0.0.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.ffn.layers.1.weight - torch.Size([96, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.blocks.1.ffn.layers.1.bias - torch.Size([96]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.downsample.norm.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.downsample.norm.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.0.downsample.reduction.weight - torch.Size([192, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.norm1.weight - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.norm1.bias - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.attn.w_msa.relative_position_bias_table - torch.Size([169, 6]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.attn.w_msa.qkv.weight - torch.Size([576, 192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.attn.w_msa.qkv.bias - torch.Size([576]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.attn.w_msa.proj.weight - torch.Size([192, 192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.attn.w_msa.proj.bias - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.norm2.weight - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.norm2.bias - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.ffn.layers.0.0.weight - torch.Size([768, 192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.ffn.layers.0.0.bias - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.ffn.layers.1.weight - torch.Size([192, 768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.0.ffn.layers.1.bias - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.norm1.weight - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.norm1.bias - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.attn.w_msa.relative_position_bias_table - torch.Size([169, 6]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.attn.w_msa.qkv.weight - torch.Size([576, 192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.attn.w_msa.qkv.bias - torch.Size([576]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.attn.w_msa.proj.weight - torch.Size([192, 192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.attn.w_msa.proj.bias - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.norm2.weight - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.norm2.bias - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.ffn.layers.0.0.weight - torch.Size([768, 192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.ffn.layers.0.0.bias - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.ffn.layers.1.weight - torch.Size([192, 768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.blocks.1.ffn.layers.1.bias - torch.Size([192]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.downsample.norm.weight - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.downsample.norm.bias - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.1.downsample.reduction.weight - torch.Size([384, 768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.0.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.1.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.2.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.3.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.4.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.5.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.6.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.7.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.8.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.9.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.10.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.11.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.12.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.13.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.14.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.15.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.16.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.norm1.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.norm1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.attn.w_msa.relative_position_bias_table - torch.Size([169, 12]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.attn.w_msa.qkv.weight - torch.Size([1152, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.attn.w_msa.qkv.bias - torch.Size([1152]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.attn.w_msa.proj.weight - torch.Size([384, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.attn.w_msa.proj.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.norm2.weight - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.norm2.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.ffn.layers.0.0.weight - torch.Size([1536, 384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.ffn.layers.0.0.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.ffn.layers.1.weight - torch.Size([384, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.blocks.17.ffn.layers.1.bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.downsample.norm.weight - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.downsample.norm.bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.2.downsample.reduction.weight - torch.Size([768, 1536]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.norm1.weight - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.norm1.bias - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.attn.w_msa.relative_position_bias_table - torch.Size([169, 24]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.attn.w_msa.qkv.weight - torch.Size([2304, 768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.attn.w_msa.qkv.bias - torch.Size([2304]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.attn.w_msa.proj.weight - torch.Size([768, 768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.attn.w_msa.proj.bias - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.norm2.weight - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.norm2.bias - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.ffn.layers.0.0.weight - torch.Size([3072, 768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.ffn.layers.0.0.bias - torch.Size([3072]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.ffn.layers.1.weight - torch.Size([768, 3072]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.0.ffn.layers.1.bias - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.norm1.weight - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.norm1.bias - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.attn.w_msa.relative_position_bias_table - torch.Size([169, 24]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.attn.w_msa.qkv.weight - torch.Size([2304, 768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.attn.w_msa.qkv.bias - torch.Size([2304]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.attn.w_msa.proj.weight - torch.Size([768, 768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.attn.w_msa.proj.bias - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.norm2.weight - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.norm2.bias - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.ffn.layers.0.0.weight - torch.Size([3072, 768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.ffn.layers.0.0.bias - torch.Size([3072]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.ffn.layers.1.weight - torch.Size([768, 3072]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.stages.3.blocks.1.ffn.layers.1.bias - torch.Size([768]): 
+Initialized by user-defined `init_weights` in SwinTransformer  
+
+backbone.norm0.weight - torch.Size([96]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+backbone.norm0.bias - torch.Size([96]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+backbone.norm1.weight - torch.Size([192]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+backbone.norm1.bias - torch.Size([192]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+backbone.norm2.weight - torch.Size([384]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+backbone.norm2.bias - torch.Size([384]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+backbone.norm3.weight - torch.Size([768]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+backbone.norm3.bias - torch.Size([768]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.lateral_convs.0.conv.weight - torch.Size([256, 192, 1, 1]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.lateral_convs.0.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.lateral_convs.1.conv.weight - torch.Size([256, 384, 1, 1]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.lateral_convs.1.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.lateral_convs.2.conv.weight - torch.Size([256, 768, 1, 1]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.lateral_convs.2.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.fpn_convs.0.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.fpn_convs.0.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.fpn_convs.1.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.fpn_convs.1.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.fpn_convs.2.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.fpn_convs.2.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.fpn_convs.3.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.fpn_convs.3.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.0.fpn_convs.4.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.0.fpn_convs.4.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.0.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.1.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.2.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.3.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.4.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_high.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_high.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_high.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_mid.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_mid.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_mid.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_low.conv.weight - torch.Size([256, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_low.norm.weight - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_low.norm.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_offset.weight - torch.Size([27, 256, 3, 3]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.spatial_conv_offset.bias - torch.Size([27]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.scale_attn_module.1.weight - torch.Size([1, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.scale_attn_module.1.bias - torch.Size([1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.task_attn_module.conv1.conv.weight - torch.Size([64, 256, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.task_attn_module.conv1.conv.bias - torch.Size([64]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.task_attn_module.conv2.conv.weight - torch.Size([1024, 64, 1, 1]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+neck.1.dyhead_blocks.5.task_attn_module.conv2.conv.bias - torch.Size([1024]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+bbox_head.atss_cls.weight - torch.Size([10, 256, 1, 1]): 
+NormalInit: mean=0, std=0.01, bias=-4.59511985013459 
+
+bbox_head.atss_cls.bias - torch.Size([10]): 
+NormalInit: mean=0, std=0.01, bias=-4.59511985013459 
+
+bbox_head.atss_reg.weight - torch.Size([4, 256, 1, 1]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+bbox_head.atss_reg.bias - torch.Size([4]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+bbox_head.atss_centerness.weight - torch.Size([1, 256, 1, 1]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+bbox_head.atss_centerness.bias - torch.Size([1]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+bbox_head.scales.0.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+bbox_head.scales.1.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+bbox_head.scales.2.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+bbox_head.scales.3.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of ATSS  
+
+bbox_head.scales.4.scale - torch.Size([]): 
+The value is the same before and after calling `init_weights` of ATSS  
+2022-04-05 08:56:55,091 - mmdet - INFO - Start running, host: root@71b0d7392d91, work_dir: /opt/ml/detection/baseline/mmdetection/work_dirs/dynamic/5
+2022-04-05 08:56:55,092 - mmdet - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) CheckpointHook                     
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_train_epoch:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) NumClassCheckHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_train_iter:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+ -------------------- 
+after_train_iter:
+(ABOVE_NORMAL) OptimizerHook                      
+(NORMAL      ) CheckpointHook                     
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+after_train_epoch:
+(NORMAL      ) CheckpointHook                     
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_val_epoch:
+(NORMAL      ) NumClassCheckHook                  
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_epoch:
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+after_run:
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+2022-04-05 08:56:55,092 - mmdet - INFO - workflow: [('train', 1), ('val', 1)], max: 36 epochs
+2022-04-05 08:56:55,093 - mmdet - INFO - Checkpoints will be saved to /opt/ml/detection/baseline/mmdetection/work_dirs/dynamic/5 by HardDiskBackend.
+2022-04-05 09:01:27,771 - mmdet - INFO - Epoch [1][100/391]	lr: 1.988e-05, eta: 10:19:57, time: 2.662, data_time: 0.045, memory: 28625, loss_cls: 1.0520, loss_bbox: 1.0363, loss_centerness: 0.6552, loss: 2.7434
+2022-04-05 09:05:50,572 - mmdet - INFO - Epoch [1][200/391]	lr: 3.986e-05, eta: 10:11:38, time: 2.628, data_time: 0.018, memory: 28625, loss_cls: 0.7817, loss_bbox: 1.0170, loss_centerness: 0.6370, loss: 2.4357
+2022-04-05 09:10:12,820 - mmdet - INFO - Epoch [1][300/391]	lr: 5.984e-05, eta: 10:05:31, time: 2.622, data_time: 0.017, memory: 28625, loss_cls: 0.5988, loss_bbox: 0.9443, loss_centerness: 0.6312, loss: 2.1743
+2022-04-05 09:14:11,711 - mmdet - INFO - Saving checkpoint at 1 epochs
+2022-04-05 09:16:39,738 - mmdet - INFO - Evaluating bbox...
+2022-04-05 09:16:49,084 - mmdet - INFO - 
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.026
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.061
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.018
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.000
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.005
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.033
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.221
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.221
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.221
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.000
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.038
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.276
+
+2022-04-05 09:16:49,245 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 09:16:49,245 - mmdet - INFO - Epoch(val) [1][975]	bbox_mAP: 0.0260, bbox_mAP_50: 0.0610, bbox_mAP_75: 0.0180, bbox_mAP_s: 0.0000, bbox_mAP_m: 0.0050, bbox_mAP_l: 0.0330, bbox_mAP_copypaste: 0.026 0.061 0.018 0.000 0.005 0.033
+2022-04-05 09:17:54,992 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 09:17:54,992 - mmdet - INFO - Epoch(val) [1][98]	loss_cls: 0.5285, loss_bbox: 0.7986, loss_centerness: 0.6324, loss: 1.9595
+2022-04-05 09:22:20,683 - mmdet - INFO - Epoch [2][100/391]	lr: 9.800e-05, eta: 8:07:21, time: 2.657, data_time: 0.048, memory: 28625, loss_cls: 0.5415, loss_bbox: 0.7415, loss_centerness: 0.6263, loss: 1.9093
+2022-04-05 09:26:43,496 - mmdet - INFO - Epoch [2][200/391]	lr: 1.000e-04, eta: 8:21:51, time: 2.628, data_time: 0.020, memory: 28625, loss_cls: 0.5209, loss_bbox: 0.7172, loss_centerness: 0.6258, loss: 1.8639
+2022-04-05 09:31:06,168 - mmdet - INFO - Epoch [2][300/391]	lr: 1.000e-04, eta: 8:30:50, time: 2.627, data_time: 0.019, memory: 28625, loss_cls: 0.5238, loss_bbox: 0.7065, loss_centerness: 0.6263, loss: 1.8567
+2022-04-05 09:35:05,334 - mmdet - INFO - Saving checkpoint at 2 epochs
+2022-04-05 09:37:38,420 - mmdet - INFO - Evaluating bbox...
+2022-04-05 09:37:47,615 - mmdet - INFO - 
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.057
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.117
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.051
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.008
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.010
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.070
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.325
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.325
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.325
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.008
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.104
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.387
+
+2022-04-05 09:37:47,770 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 09:37:47,770 - mmdet - INFO - Epoch(val) [2][975]	bbox_mAP: 0.0570, bbox_mAP_50: 0.1170, bbox_mAP_75: 0.0510, bbox_mAP_s: 0.0080, bbox_mAP_m: 0.0100, bbox_mAP_l: 0.0700, bbox_mAP_copypaste: 0.057 0.117 0.051 0.008 0.010 0.070
+2022-04-05 09:38:53,567 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 09:38:53,567 - mmdet - INFO - Epoch(val) [2][98]	loss_cls: 0.4860, loss_bbox: 0.6607, loss_centerness: 0.6255, loss: 1.7722
+2022-04-05 09:43:19,407 - mmdet - INFO - Epoch [3][100/391]	lr: 1.000e-04, eta: 7:40:46, time: 2.658, data_time: 0.048, memory: 28625, loss_cls: 0.4780, loss_bbox: 0.6356, loss_centerness: 0.6228, loss: 1.7364
+2022-04-05 09:47:42,000 - mmdet - INFO - Epoch [3][200/391]	lr: 1.000e-04, eta: 7:49:04, time: 2.626, data_time: 0.019, memory: 28625, loss_cls: 0.4644, loss_bbox: 0.6178, loss_centerness: 0.6221, loss: 1.7043
+2022-04-05 09:52:04,623 - mmdet - INFO - Epoch [3][300/391]	lr: 1.000e-04, eta: 7:55:02, time: 2.626, data_time: 0.019, memory: 28625, loss_cls: 0.4699, loss_bbox: 0.6067, loss_centerness: 0.6213, loss: 1.6979
+2022-04-05 09:56:03,716 - mmdet - INFO - Saving checkpoint at 3 epochs
+2022-04-05 09:58:31,968 - mmdet - INFO - Evaluating bbox...
+2022-04-05 09:58:41,616 - mmdet - INFO - 
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.091
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.160
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.097
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.004
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.019
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.113
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.405
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.405
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.405
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.012
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.123
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.480
+
+2022-04-05 09:58:41,786 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 09:58:41,786 - mmdet - INFO - Epoch(val) [3][975]	bbox_mAP: 0.0910, bbox_mAP_50: 0.1600, bbox_mAP_75: 0.0970, bbox_mAP_s: 0.0040, bbox_mAP_m: 0.0190, bbox_mAP_l: 0.1130, bbox_mAP_copypaste: 0.091 0.160 0.097 0.004 0.019 0.113
+2022-04-05 09:59:47,597 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 09:59:47,597 - mmdet - INFO - Epoch(val) [3][98]	loss_cls: 0.4487, loss_bbox: 0.5741, loss_centerness: 0.6199, loss: 1.6427
+2022-04-05 10:04:13,675 - mmdet - INFO - Epoch [4][100/391]	lr: 1.000e-04, eta: 7:22:25, time: 2.661, data_time: 0.048, memory: 28625, loss_cls: 0.4294, loss_bbox: 0.5781, loss_centerness: 0.6205, loss: 1.6280
+2022-04-05 10:08:36,524 - mmdet - INFO - Epoch [4][200/391]	lr: 1.000e-04, eta: 7:27:31, time: 2.628, data_time: 0.019, memory: 28625, loss_cls: 0.4394, loss_bbox: 0.5430, loss_centerness: 0.6175, loss: 1.5999
+2022-04-05 10:12:59,251 - mmdet - INFO - Epoch [4][300/391]	lr: 1.000e-04, eta: 7:31:19, time: 2.627, data_time: 0.019, memory: 28625, loss_cls: 0.4307, loss_bbox: 0.5477, loss_centerness: 0.6162, loss: 1.5946
+2022-04-05 10:16:58,743 - mmdet - INFO - Saving checkpoint at 4 epochs
+2022-04-05 10:19:27,417 - mmdet - INFO - Evaluating bbox...
+2022-04-05 10:19:37,028 - mmdet - INFO - 
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.127
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.201
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.139
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.014
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.022
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.156
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.461
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.461
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.461
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.020
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.193
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.534
+
+2022-04-05 10:19:37,187 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 10:19:37,187 - mmdet - INFO - Epoch(val) [4][975]	bbox_mAP: 0.1270, bbox_mAP_50: 0.2010, bbox_mAP_75: 0.1390, bbox_mAP_s: 0.0140, bbox_mAP_m: 0.0220, bbox_mAP_l: 0.1560, bbox_mAP_copypaste: 0.127 0.201 0.139 0.014 0.022 0.156
+2022-04-05 10:20:43,320 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 10:20:43,321 - mmdet - INFO - Epoch(val) [4][98]	loss_cls: 0.4312, loss_bbox: 0.5276, loss_centerness: 0.6175, loss: 1.5763
+2022-04-05 10:25:09,041 - mmdet - INFO - Epoch [5][100/391]	lr: 1.000e-04, eta: 7:06:29, time: 2.657, data_time: 0.048, memory: 28625, loss_cls: 0.4118, loss_bbox: 0.5321, loss_centerness: 0.6155, loss: 1.5593
+2022-04-05 10:29:31,829 - mmdet - INFO - Epoch [5][200/391]	lr: 1.000e-04, eta: 7:09:38, time: 2.628, data_time: 0.019, memory: 28625, loss_cls: 0.4072, loss_bbox: 0.5139, loss_centerness: 0.6146, loss: 1.5357
+2022-04-05 10:33:54,929 - mmdet - INFO - Epoch [5][300/391]	lr: 1.000e-04, eta: 7:12:01, time: 2.631, data_time: 0.019, memory: 28625, loss_cls: 0.4042, loss_bbox: 0.5056, loss_centerness: 0.6141, loss: 1.5238
+2022-04-05 10:37:54,093 - mmdet - INFO - Saving checkpoint at 5 epochs
+2022-04-05 10:40:22,161 - mmdet - INFO - Evaluating bbox...
+2022-04-05 10:40:31,068 - mmdet - INFO - 
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.141
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.223
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.153
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.013
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.055
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.171
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.496
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.496
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.496
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.022
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.206
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.573
+
+2022-04-05 10:40:31,219 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 10:40:31,219 - mmdet - INFO - Epoch(val) [5][975]	bbox_mAP: 0.1410, bbox_mAP_50: 0.2230, bbox_mAP_75: 0.1530, bbox_mAP_s: 0.0130, bbox_mAP_m: 0.0550, bbox_mAP_l: 0.1710, bbox_mAP_copypaste: 0.141 0.223 0.153 0.013 0.055 0.171
+2022-04-05 10:41:37,201 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 10:41:37,202 - mmdet - INFO - Epoch(val) [5][98]	loss_cls: 0.4228, loss_bbox: 0.5107, loss_centerness: 0.6151, loss: 1.5487
+2022-04-05 10:46:02,952 - mmdet - INFO - Epoch [6][100/391]	lr: 1.000e-04, eta: 6:51:38, time: 2.657, data_time: 0.048, memory: 28625, loss_cls: 0.3966, loss_bbox: 0.5104, loss_centerness: 0.6141, loss: 1.5211
+2022-04-05 10:50:25,792 - mmdet - INFO - Epoch [6][200/391]	lr: 1.000e-04, eta: 6:53:30, time: 2.628, data_time: 0.019, memory: 28625, loss_cls: 0.3915, loss_bbox: 0.5034, loss_centerness: 0.6142, loss: 1.5091
+2022-04-05 10:54:48,766 - mmdet - INFO - Epoch [6][300/391]	lr: 1.000e-04, eta: 6:54:49, time: 2.630, data_time: 0.019, memory: 28625, loss_cls: 0.3965, loss_bbox: 0.4904, loss_centerness: 0.6136, loss: 1.5005
+2022-04-05 10:58:48,056 - mmdet - INFO - Saving checkpoint at 6 epochs
+2022-04-05 11:01:14,997 - mmdet - INFO - Evaluating bbox...
+2022-04-05 11:01:24,245 - mmdet - INFO - 
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.165
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.266
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.180
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.009
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.067
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.198
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.503
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.503
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.503
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.009
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.247
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.579
+
+2022-04-05 11:01:24,399 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 11:01:24,399 - mmdet - INFO - Epoch(val) [6][975]	bbox_mAP: 0.1650, bbox_mAP_50: 0.2660, bbox_mAP_75: 0.1800, bbox_mAP_s: 0.0090, bbox_mAP_m: 0.0670, bbox_mAP_l: 0.1980, bbox_mAP_copypaste: 0.165 0.266 0.180 0.009 0.067 0.198
+2022-04-05 11:02:30,312 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 11:02:30,312 - mmdet - INFO - Epoch(val) [6][98]	loss_cls: 0.3994, loss_bbox: 0.5241, loss_centerness: 0.6146, loss: 1.5381
+2022-04-05 11:06:55,831 - mmdet - INFO - Epoch [7][100/391]	lr: 1.000e-04, eta: 6:37:17, time: 2.655, data_time: 0.048, memory: 28625, loss_cls: 0.3917, loss_bbox: 0.4803, loss_centerness: 0.6114, loss: 1.4835
+2022-04-05 11:11:18,423 - mmdet - INFO - Epoch [7][200/391]	lr: 1.000e-04, eta: 6:38:13, time: 2.626, data_time: 0.019, memory: 28625, loss_cls: 0.3906, loss_bbox: 0.4695, loss_centerness: 0.6131, loss: 1.4731
+2022-04-05 11:15:40,983 - mmdet - INFO - Epoch [7][300/391]	lr: 1.000e-04, eta: 6:38:45, time: 2.626, data_time: 0.019, memory: 28625, loss_cls: 0.3947, loss_bbox: 0.4912, loss_centerness: 0.6134, loss: 1.4993
+2022-04-05 11:19:40,098 - mmdet - INFO - Saving checkpoint at 7 epochs
+2022-04-05 11:22:07,033 - mmdet - INFO - Evaluating bbox...
+2022-04-05 11:22:16,069 - mmdet - INFO - 
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.168
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.257
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.185
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.010
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.057
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.202
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.513
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.513
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.513
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.043
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.270
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.581
+
+2022-04-05 11:22:16,218 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 11:22:16,221 - mmdet - INFO - Epoch(val) [7][975]	bbox_mAP: 0.1680, bbox_mAP_50: 0.2570, bbox_mAP_75: 0.1850, bbox_mAP_s: 0.0100, bbox_mAP_m: 0.0570, bbox_mAP_l: 0.2020, bbox_mAP_copypaste: 0.168 0.257 0.185 0.010 0.057 0.202
+2022-04-05 11:23:22,061 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 11:23:22,061 - mmdet - INFO - Epoch(val) [7][98]	loss_cls: 0.4012, loss_bbox: 0.4913, loss_centerness: 0.6137, loss: 1.5062
+2022-04-05 11:27:47,229 - mmdet - INFO - Epoch [8][100/391]	lr: 1.000e-04, eta: 6:23:12, time: 2.651, data_time: 0.048, memory: 28625, loss_cls: 0.3810, loss_bbox: 0.4632, loss_centerness: 0.6111, loss: 1.4553
+2022-04-05 11:32:09,596 - mmdet - INFO - Epoch [8][200/391]	lr: 1.000e-04, eta: 6:23:26, time: 2.624, data_time: 0.019, memory: 28625, loss_cls: 0.3685, loss_bbox: 0.4597, loss_centerness: 0.6118, loss: 1.4400
+2022-04-05 11:36:32,400 - mmdet - INFO - Epoch [8][300/391]	lr: 1.000e-04, eta: 6:23:24, time: 2.628, data_time: 0.019, memory: 28625, loss_cls: 0.3652, loss_bbox: 0.4608, loss_centerness: 0.6107, loss: 1.4367
+2022-04-05 11:40:31,057 - mmdet - INFO - Saving checkpoint at 8 epochs
+2022-04-05 11:42:58,686 - mmdet - INFO - Evaluating bbox...
+2022-04-05 11:43:08,286 - mmdet - INFO - 
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.200
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.301
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.225
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.009
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.100
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.236
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.535
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.535
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.535
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.057
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.302
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.603
+
+2022-04-05 11:43:08,451 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 11:43:08,451 - mmdet - INFO - Epoch(val) [8][975]	bbox_mAP: 0.2000, bbox_mAP_50: 0.3010, bbox_mAP_75: 0.2250, bbox_mAP_s: 0.0090, bbox_mAP_m: 0.1000, bbox_mAP_l: 0.2360, bbox_mAP_copypaste: 0.200 0.301 0.225 0.009 0.100 0.236
+2022-04-05 11:44:14,404 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 11:44:14,404 - mmdet - INFO - Epoch(val) [8][98]	loss_cls: 0.3940, loss_bbox: 0.4694, loss_centerness: 0.6122, loss: 1.4756
+2022-04-05 11:48:39,591 - mmdet - INFO - Epoch [9][100/391]	lr: 1.000e-05, eta: 6:09:20, time: 2.652, data_time: 0.048, memory: 28625, loss_cls: 0.3448, loss_bbox: 0.4140, loss_centerness: 0.6088, loss: 1.3676
+2022-04-05 11:53:02,554 - mmdet - INFO - Epoch [9][200/391]	lr: 1.000e-05, eta: 6:09:05, time: 2.630, data_time: 0.020, memory: 28625, loss_cls: 0.3339, loss_bbox: 0.4119, loss_centerness: 0.6093, loss: 1.3550
+2022-04-05 11:57:25,340 - mmdet - INFO - Epoch [9][300/391]	lr: 1.000e-05, eta: 6:08:35, time: 2.628, data_time: 0.020, memory: 28625, loss_cls: 0.3350, loss_bbox: 0.4106, loss_centerness: 0.6093, loss: 1.3549
+2022-04-05 12:01:24,697 - mmdet - INFO - Saving checkpoint at 9 epochs
+2022-04-05 12:03:54,819 - mmdet - INFO - Evaluating bbox...
+2022-04-05 12:04:04,022 - mmdet - INFO - 
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.265
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.368
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.285
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.021
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.089
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.314
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.589
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.589
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.589
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.083
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.330
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.661
+
+2022-04-05 12:04:04,166 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 12:04:04,166 - mmdet - INFO - Epoch(val) [9][975]	bbox_mAP: 0.2650, bbox_mAP_50: 0.3680, bbox_mAP_75: 0.2850, bbox_mAP_s: 0.0210, bbox_mAP_m: 0.0890, bbox_mAP_l: 0.3140, bbox_mAP_copypaste: 0.265 0.368 0.285 0.021 0.089 0.314
+2022-04-05 12:05:10,248 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 12:05:10,249 - mmdet - INFO - Epoch(val) [9][98]	loss_cls: 0.3594, loss_bbox: 0.4326, loss_centerness: 0.6117, loss: 1.4037
+2022-04-05 12:09:35,929 - mmdet - INFO - Epoch [10][100/391]	lr: 1.000e-05, eta: 5:55:40, time: 2.657, data_time: 0.048, memory: 28625, loss_cls: 0.3206, loss_bbox: 0.3842, loss_centerness: 0.6073, loss: 1.3121
+2022-04-05 12:13:58,779 - mmdet - INFO - Epoch [10][200/391]	lr: 1.000e-05, eta: 5:54:59, time: 2.628, data_time: 0.019, memory: 28625, loss_cls: 0.3269, loss_bbox: 0.4128, loss_centerness: 0.6088, loss: 1.3485
+2022-04-05 12:18:21,501 - mmdet - INFO - Epoch [10][300/391]	lr: 1.000e-05, eta: 5:54:07, time: 2.627, data_time: 0.019, memory: 28625, loss_cls: 0.3204, loss_bbox: 0.3984, loss_centerness: 0.6078, loss: 1.3266
+2022-04-05 12:22:20,643 - mmdet - INFO - Saving checkpoint at 10 epochs
+2022-04-05 12:24:50,505 - mmdet - INFO - Evaluating bbox...
+2022-04-05 12:24:59,474 - mmdet - INFO - 
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.279
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.383
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.296
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.017
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.095
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.330
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.600
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.600
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.600
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.084
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.346
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.671
+
+2022-04-05 12:24:59,606 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 12:24:59,606 - mmdet - INFO - Epoch(val) [10][975]	bbox_mAP: 0.2790, bbox_mAP_50: 0.3830, bbox_mAP_75: 0.2960, bbox_mAP_s: 0.0170, bbox_mAP_m: 0.0950, bbox_mAP_l: 0.3300, bbox_mAP_copypaste: 0.279 0.383 0.296 0.017 0.095 0.330
+2022-04-05 12:26:05,691 - mmdet - INFO - Exp name: myconfig.py
+2022-04-05 12:26:05,691 - mmdet - INFO - Epoch(val) [10][98]	loss_cls: 0.3585, loss_bbox: 0.4286, loss_centerness: 0.6113, loss: 1.3984
+2022-04-05 12:30:31,565 - mmdet - INFO - Epoch [11][100/391]	lr: 1.000e-05, eta: 5:42:05, time: 2.659, data_time: 0.048, memory: 28625, loss_cls: 0.3225, loss_bbox: 0.3993, loss_centerness: 0.6088, loss: 1.3306

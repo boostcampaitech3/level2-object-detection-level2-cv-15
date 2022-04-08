@@ -1,0 +1,2248 @@
+2022-03-31 03:17:44,112 - mmdet - INFO - Environment info:
+------------------------------------------------------------
+sys.platform: linux
+Python: 3.7.11 (default, Jul 27 2021, 14:32:16) [GCC 7.5.0]
+CUDA available: True
+GPU 0: Tesla V100-PCIE-32GB
+CUDA_HOME: None
+GCC: gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0
+PyTorch: 1.7.1
+PyTorch compiling details: PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - Intel(R) oneAPI Math Kernel Library Version 2021.4-Product Build 20210904 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v1.6.0 (Git Hash 5ef631a030a6f73131c77892041042805a06064f)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 11.0
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_37,code=compute_37
+  - CuDNN 8.0.5
+  - Magma 2.5.2
+  - Build settings: BLAS=MKL, BUILD_TYPE=Release, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DUSE_VULKAN_WRAPPER -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, USE_CUDA=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, 
+
+TorchVision: 0.8.2
+OpenCV: 4.5.5
+MMCV: 1.4.8
+MMCV Compiler: GCC 7.3
+MMCV CUDA Compiler: 11.0
+MMDetection: 2.22.0+6ddbff8
+------------------------------------------------------------
+
+2022-03-31 03:17:44,722 - mmdet - INFO - Distributed training: False
+2022-03-31 03:17:45,403 - mmdet - INFO - Config:
+model = dict(
+    type='CascadeRCNN',
+    backbone=dict(
+        type='PyramidVisionTransformerV2',
+        embed_dims=64,
+        num_layers=[3, 4, 18, 3],
+        init_cfg=dict(
+            checkpoint=
+            'https://github.com/whai362/PVT/releases/download/v2/pvt_v2_b3.pth'
+        )),
+    neck=dict(
+        type='PAFPN',
+        in_channels=[64, 128, 320, 512],
+        out_channels=256,
+        num_outs=5),
+    rpn_head=dict(
+        type='RPNHead',
+        in_channels=256,
+        feat_channels=256,
+        anchor_generator=dict(
+            type='AnchorGenerator',
+            scales=[8],
+            ratios=[0.7, 1, 1.5],
+            strides=[4, 8, 16, 32, 64]),
+        bbox_coder=dict(
+            type='DeltaXYWHBBoxCoder',
+            target_means=[0.0, 0.0, 0.0, 0.0],
+            target_stds=[1.0, 1.0, 1.0, 1.0]),
+        loss_cls=dict(
+            type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0),
+        loss_bbox=dict(
+            type='SmoothL1Loss', beta=0.1111111111111111, loss_weight=1.0)),
+    roi_head=dict(
+        type='CascadeRoIHead',
+        num_stages=3,
+        stage_loss_weights=[1, 0.5, 0.25],
+        bbox_roi_extractor=dict(
+            type='SingleRoIExtractor',
+            roi_layer=dict(type='RoIAlign', output_size=7, sampling_ratio=0),
+            out_channels=256,
+            featmap_strides=[4, 8, 16, 32]),
+        bbox_head=[
+            dict(
+                type='Shared2FCBBoxHead',
+                in_channels=256,
+                fc_out_channels=1024,
+                roi_feat_size=7,
+                num_classes=10,
+                bbox_coder=dict(
+                    type='DeltaXYWHBBoxCoder',
+                    target_means=[0.0, 0.0, 0.0, 0.0],
+                    target_stds=[0.1, 0.1, 0.2, 0.2]),
+                reg_class_agnostic=True,
+                loss_cls=dict(
+                    type='CrossEntropyLoss',
+                    use_sigmoid=False,
+                    loss_weight=1.0),
+                loss_bbox=dict(type='SmoothL1Loss', beta=1.0,
+                               loss_weight=1.0)),
+            dict(
+                type='Shared2FCBBoxHead',
+                in_channels=256,
+                fc_out_channels=1024,
+                roi_feat_size=7,
+                num_classes=10,
+                bbox_coder=dict(
+                    type='DeltaXYWHBBoxCoder',
+                    target_means=[0.0, 0.0, 0.0, 0.0],
+                    target_stds=[0.05, 0.05, 0.1, 0.1]),
+                reg_class_agnostic=True,
+                loss_cls=dict(
+                    type='CrossEntropyLoss',
+                    use_sigmoid=False,
+                    loss_weight=1.0),
+                loss_bbox=dict(type='SmoothL1Loss', beta=1.0,
+                               loss_weight=1.0)),
+            dict(
+                type='Shared2FCBBoxHead',
+                in_channels=256,
+                fc_out_channels=1024,
+                roi_feat_size=7,
+                num_classes=10,
+                bbox_coder=dict(
+                    type='DeltaXYWHBBoxCoder',
+                    target_means=[0.0, 0.0, 0.0, 0.0],
+                    target_stds=[0.033, 0.033, 0.067, 0.067]),
+                reg_class_agnostic=True,
+                loss_cls=dict(
+                    type='CrossEntropyLoss',
+                    use_sigmoid=False,
+                    loss_weight=1.0),
+                loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0))
+        ]),
+    train_cfg=dict(
+        rpn=dict(
+            assigner=dict(
+                type='MaxIoUAssigner',
+                pos_iou_thr=0.7,
+                neg_iou_thr=0.3,
+                min_pos_iou=0.3,
+                match_low_quality=True,
+                ignore_iof_thr=-1),
+            sampler=dict(
+                type='RandomSampler',
+                num=256,
+                pos_fraction=0.5,
+                neg_pos_ub=-1,
+                add_gt_as_proposals=False),
+            allowed_border=0,
+            pos_weight=-1,
+            debug=False),
+        rpn_proposal=dict(
+            nms_pre=2000,
+            max_per_img=2000,
+            nms=dict(type='nms', iou_threshold=0.7),
+            min_bbox_size=0),
+        rcnn=[
+            dict(
+                assigner=dict(
+                    type='MaxIoUAssigner',
+                    pos_iou_thr=0.5,
+                    neg_iou_thr=0.5,
+                    min_pos_iou=0.5,
+                    match_low_quality=False,
+                    ignore_iof_thr=-1),
+                sampler=dict(
+                    type='RandomSampler',
+                    num=512,
+                    pos_fraction=0.25,
+                    neg_pos_ub=-1,
+                    add_gt_as_proposals=True),
+                pos_weight=-1,
+                debug=False),
+            dict(
+                assigner=dict(
+                    type='MaxIoUAssigner',
+                    pos_iou_thr=0.6,
+                    neg_iou_thr=0.6,
+                    min_pos_iou=0.6,
+                    match_low_quality=False,
+                    ignore_iof_thr=-1),
+                sampler=dict(
+                    type='RandomSampler',
+                    num=512,
+                    pos_fraction=0.25,
+                    neg_pos_ub=-1,
+                    add_gt_as_proposals=True),
+                pos_weight=-1,
+                debug=False),
+            dict(
+                assigner=dict(
+                    type='MaxIoUAssigner',
+                    pos_iou_thr=0.7,
+                    neg_iou_thr=0.7,
+                    min_pos_iou=0.7,
+                    match_low_quality=False,
+                    ignore_iof_thr=-1),
+                sampler=dict(
+                    type='RandomSampler',
+                    num=512,
+                    pos_fraction=0.25,
+                    neg_pos_ub=-1,
+                    add_gt_as_proposals=True),
+                pos_weight=-1,
+                debug=False)
+        ]),
+    test_cfg=dict(
+        rpn=dict(
+            nms_pre=1000,
+            max_per_img=1000,
+            nms=dict(type='nms', iou_threshold=0.7),
+            min_bbox_size=0),
+        rcnn=dict(
+            score_thr=0.05,
+            nms=dict(type='nms', iou_threshold=0.5),
+            max_per_img=100)))
+classes = ('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass', 'Plastic',
+           'Styrofoam', 'Plastic bag', 'Battery', 'Clothing')
+dataset_type = 'CocoDataset'
+data_root = 'data/coco/'
+img_norm_cfg = dict(
+    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
+albu_train_transforms = [
+    dict(
+        type='HueSaturationValue',
+        hue_shift_limit=20,
+        sat_shift_limit=30,
+        val_shift_limit=20,
+        p=0.1),
+    dict(type='GaussNoise'),
+    dict(type='RandomRotate90', p=0.5)
+]
+train_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='Resize', img_scale=(768, 768), keep_ratio=True),
+    dict(
+        type='Albu',
+        transforms=[
+            dict(
+                type='HueSaturationValue',
+                hue_shift_limit=20,
+                sat_shift_limit=30,
+                val_shift_limit=20,
+                p=0.1),
+            dict(type='GaussNoise'),
+            dict(type='RandomRotate90', p=0.5)
+        ],
+        bbox_params=dict(
+            type='BboxParams',
+            format='pascal_voc',
+            label_fields=['gt_labels'],
+            min_visibility=0.0,
+            filter_lost_elements=True),
+        keymap=dict(img='image', gt_masks='masks', gt_bboxes='bboxes'),
+        update_pad_shape=False,
+        skip_img_without_anno=True),
+    dict(type='Pad', size_divisor=32),
+    dict(type='RandomFlip', flip_ratio=0.5),
+    dict(
+        type='Normalize',
+        mean=[123.675, 116.28, 103.53],
+        std=[58.395, 57.12, 57.375],
+        to_rgb=True),
+    dict(type='DefaultFormatBundle'),
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+]
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(
+        type='MultiScaleFlipAug',
+        img_scale=(768, 768),
+        flip=False,
+        transforms=[
+            dict(type='Resize', keep_ratio=True),
+            dict(type='RandomFlip'),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='Pad', size_divisor=32),
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='Collect', keys=['img'])
+        ])
+]
+data = dict(
+    samples_per_gpu=4,
+    workers_per_gpu=2,
+    train=dict(
+        classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery', 'Clothing'),
+        type='CocoDataset',
+        ann_file='/opt/ml/detection/dataset/train_new_1.json',
+        img_prefix='/opt/ml/detection/dataset/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(type='LoadAnnotations', with_bbox=True),
+            dict(type='Resize', img_scale=(512, 512), keep_ratio=True),
+            dict(
+                type='Albu',
+                transforms=[
+                    dict(
+                        type='HueSaturationValue',
+                        hue_shift_limit=20,
+                        sat_shift_limit=30,
+                        val_shift_limit=20,
+                        p=0.1),
+                    dict(type='GaussNoise'),
+                    dict(type='RandomRotate90', p=0.5)
+                ],
+                bbox_params=dict(
+                    type='BboxParams',
+                    format='pascal_voc',
+                    label_fields=['gt_labels'],
+                    min_visibility=0.0,
+                    filter_lost_elements=True),
+                keymap=dict(img='image', gt_masks='masks', gt_bboxes='bboxes'),
+                update_pad_shape=False,
+                skip_img_without_anno=True),
+            dict(type='Pad', size_divisor=32),
+            dict(type='RandomFlip', flip_ratio=0.5),
+            dict(
+                type='Normalize',
+                mean=[123.675, 116.28, 103.53],
+                std=[58.395, 57.12, 57.375],
+                to_rgb=True),
+            dict(type='DefaultFormatBundle'),
+            dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels'])
+        ]),
+    val=dict(
+        type='CocoDataset',
+        ann_file='/opt/ml/detection/dataset/cv_val_1.json',
+        img_prefix='/opt/ml/detection/dataset/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(512, 512),
+                flip=False,
+                transforms=[
+                    dict(type='Resize', keep_ratio=True),
+                    dict(type='RandomFlip'),
+                    dict(
+                        type='Normalize',
+                        mean=[123.675, 116.28, 103.53],
+                        std=[58.395, 57.12, 57.375],
+                        to_rgb=True),
+                    dict(type='Pad', size_divisor=32),
+                    dict(type='ImageToTensor', keys=['img']),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ],
+        classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery',
+                 'Clothing')),
+    test=dict(
+        type='CocoDataset',
+        ann_file='/opt/ml/detection/dataset/test.json',
+        img_prefix='/opt/ml/detection/dataset/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(512, 512),
+                flip=False,
+                transforms=[
+                    dict(type='Resize', keep_ratio=True),
+                    dict(type='RandomFlip'),
+                    dict(
+                        type='Normalize',
+                        mean=[123.675, 116.28, 103.53],
+                        std=[58.395, 57.12, 57.375],
+                        to_rgb=True),
+                    dict(type='Pad', size_divisor=32),
+                    dict(type='ImageToTensor', keys=['img']),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ],
+        classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery',
+                 'Clothing')))
+evaluation = dict(
+    interval=1, metric='bbox', save_best='bbox_mAP_50', classwise=True)
+optimizer = dict(
+    type='AdamW',
+    lr=0.0001,
+    betas=(0.9, 0.999),
+    weight_decay=0.05,
+    paramwise_cfg=dict(
+        custom_keys=dict(
+            absolute_pos_embed=dict(decay_mult=0.0),
+            relative_position_bias_table=dict(decay_mult=0.0),
+            norm=dict(decay_mult=0.0))))
+optimizer_config = dict(grad_clip=None)
+lr_config = dict(
+    policy='step',
+    warmup='linear',
+    warmup_iters=500,
+    warmup_ratio=0.001,
+    step=[8, 11])
+runner = dict(type='EpochBasedRunner', max_epochs=30)
+checkpoint_config = dict(interval=1)
+log_config = dict(
+    interval=500,
+    hooks=[
+        dict(type='TextLoggerHook', interval=400),
+        dict(
+            type='WandbLoggerHook',
+            interval=200,
+            init_kwargs=dict(project='objectdetection', name='LIM_MM_testing'))
+    ])
+custom_hooks = [dict(type='NumClassCheckHook')]
+dist_params = dict(backend='nccl')
+log_level = 'INFO'
+load_from = None
+resume_from = None
+workflow = [('train', 1), ('val', 1)]
+opencv_num_threads = 0
+mp_start_method = 'fork'
+pretrained = 'https://github.com/SwinTransformer/storage/releases/download/v1.0.0/swin_tiny_patch4_window7_224.pth'
+work_dir = './work_dirs/carscade_rcnn_pvt2_pafpn_1x_trash/Adamw_step_aug2_iou'
+auto_resume = False
+gpu_ids = [0]
+
+2022-03-31 03:17:45,404 - mmdet - INFO - Set random seed to 2022, deterministic: False
+2022-03-31 03:17:46,404 - mmdet - INFO - load checkpoint from http path: https://github.com/whai362/PVT/releases/download/v2/pvt_v2_b3.pth
+2022-03-31 03:17:46,529 - mmdet - WARNING - Load pre-trained model for PyramidVisionTransformerV2 from original repo
+2022-03-31 03:17:46,637 - mmdet - INFO - initialize PAFPN with init_cfg {'type': 'Xavier', 'layer': 'Conv2d', 'distribution': 'uniform'}
+2022-03-31 03:17:46,685 - mmdet - INFO - initialize RPNHead with init_cfg {'type': 'Normal', 'layer': 'Conv2d', 'std': 0.01}
+2022-03-31 03:17:46,693 - mmdet - INFO - initialize Shared2FCBBoxHead with init_cfg [{'type': 'Normal', 'std': 0.01, 'override': {'name': 'fc_cls'}}, {'type': 'Normal', 'std': 0.001, 'override': {'name': 'fc_reg'}}, {'type': 'Xavier', 'distribution': 'uniform', 'override': [{'name': 'shared_fcs'}, {'name': 'cls_fcs'}, {'name': 'reg_fcs'}]}]
+2022-03-31 03:17:46,795 - mmdet - INFO - initialize Shared2FCBBoxHead with init_cfg [{'type': 'Normal', 'std': 0.01, 'override': {'name': 'fc_cls'}}, {'type': 'Normal', 'std': 0.001, 'override': {'name': 'fc_reg'}}, {'type': 'Xavier', 'distribution': 'uniform', 'override': [{'name': 'shared_fcs'}, {'name': 'cls_fcs'}, {'name': 'reg_fcs'}]}]
+2022-03-31 03:17:46,896 - mmdet - INFO - initialize Shared2FCBBoxHead with init_cfg [{'type': 'Normal', 'std': 0.01, 'override': {'name': 'fc_cls'}}, {'type': 'Normal', 'std': 0.001, 'override': {'name': 'fc_reg'}}, {'type': 'Xavier', 'distribution': 'uniform', 'override': [{'name': 'shared_fcs'}, {'name': 'cls_fcs'}, {'name': 'reg_fcs'}]}]
+Name of parameter - Initialization information
+
+backbone.layers.0.0.projection.weight - torch.Size([64, 3, 7, 7]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.0.projection.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.0.norm.weight - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.0.norm.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.norm1.weight - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.norm1.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.attn.attn.in_proj_weight - torch.Size([192, 64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.attn.attn.in_proj_bias - torch.Size([192]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.attn.attn.out_proj.weight - torch.Size([64, 64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.attn.attn.out_proj.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.attn.sr.weight - torch.Size([64, 64, 8, 8]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.attn.sr.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.attn.norm.weight - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.attn.norm.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.norm2.weight - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.norm2.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.ffn.layers.0.weight - torch.Size([512, 64, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.ffn.layers.0.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.ffn.layers.1.weight - torch.Size([512, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.ffn.layers.1.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.ffn.layers.4.weight - torch.Size([64, 512, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.0.ffn.layers.4.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.norm1.weight - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.norm1.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.attn.attn.in_proj_weight - torch.Size([192, 64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.attn.attn.in_proj_bias - torch.Size([192]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.attn.attn.out_proj.weight - torch.Size([64, 64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.attn.attn.out_proj.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.attn.sr.weight - torch.Size([64, 64, 8, 8]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.attn.sr.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.attn.norm.weight - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.attn.norm.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.norm2.weight - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.norm2.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.ffn.layers.0.weight - torch.Size([512, 64, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.ffn.layers.0.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.ffn.layers.1.weight - torch.Size([512, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.ffn.layers.1.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.ffn.layers.4.weight - torch.Size([64, 512, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.1.ffn.layers.4.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.norm1.weight - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.norm1.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.attn.attn.in_proj_weight - torch.Size([192, 64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.attn.attn.in_proj_bias - torch.Size([192]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.attn.attn.out_proj.weight - torch.Size([64, 64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.attn.attn.out_proj.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.attn.sr.weight - torch.Size([64, 64, 8, 8]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.attn.sr.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.attn.norm.weight - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.attn.norm.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.norm2.weight - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.norm2.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.ffn.layers.0.weight - torch.Size([512, 64, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.ffn.layers.0.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.ffn.layers.1.weight - torch.Size([512, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.ffn.layers.1.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.ffn.layers.4.weight - torch.Size([64, 512, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.1.2.ffn.layers.4.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.2.weight - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.0.2.bias - torch.Size([64]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.0.projection.weight - torch.Size([128, 64, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.0.projection.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.0.norm.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.0.norm.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.norm1.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.norm1.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.attn.attn.in_proj_weight - torch.Size([384, 128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.attn.attn.in_proj_bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.attn.attn.out_proj.weight - torch.Size([128, 128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.attn.attn.out_proj.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.attn.sr.weight - torch.Size([128, 128, 4, 4]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.attn.sr.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.attn.norm.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.attn.norm.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.norm2.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.norm2.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.ffn.layers.0.weight - torch.Size([1024, 128, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.ffn.layers.0.bias - torch.Size([1024]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.ffn.layers.1.weight - torch.Size([1024, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.ffn.layers.1.bias - torch.Size([1024]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.ffn.layers.4.weight - torch.Size([128, 1024, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.0.ffn.layers.4.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.norm1.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.norm1.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.attn.attn.in_proj_weight - torch.Size([384, 128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.attn.attn.in_proj_bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.attn.attn.out_proj.weight - torch.Size([128, 128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.attn.attn.out_proj.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.attn.sr.weight - torch.Size([128, 128, 4, 4]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.attn.sr.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.attn.norm.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.attn.norm.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.norm2.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.norm2.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.ffn.layers.0.weight - torch.Size([1024, 128, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.ffn.layers.0.bias - torch.Size([1024]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.ffn.layers.1.weight - torch.Size([1024, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.ffn.layers.1.bias - torch.Size([1024]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.ffn.layers.4.weight - torch.Size([128, 1024, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.1.ffn.layers.4.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.norm1.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.norm1.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.attn.attn.in_proj_weight - torch.Size([384, 128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.attn.attn.in_proj_bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.attn.attn.out_proj.weight - torch.Size([128, 128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.attn.attn.out_proj.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.attn.sr.weight - torch.Size([128, 128, 4, 4]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.attn.sr.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.attn.norm.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.attn.norm.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.norm2.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.norm2.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.ffn.layers.0.weight - torch.Size([1024, 128, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.ffn.layers.0.bias - torch.Size([1024]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.ffn.layers.1.weight - torch.Size([1024, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.ffn.layers.1.bias - torch.Size([1024]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.ffn.layers.4.weight - torch.Size([128, 1024, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.2.ffn.layers.4.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.norm1.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.norm1.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.attn.attn.in_proj_weight - torch.Size([384, 128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.attn.attn.in_proj_bias - torch.Size([384]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.attn.attn.out_proj.weight - torch.Size([128, 128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.attn.attn.out_proj.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.attn.sr.weight - torch.Size([128, 128, 4, 4]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.attn.sr.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.attn.norm.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.attn.norm.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.norm2.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.norm2.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.ffn.layers.0.weight - torch.Size([1024, 128, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.ffn.layers.0.bias - torch.Size([1024]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.ffn.layers.1.weight - torch.Size([1024, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.ffn.layers.1.bias - torch.Size([1024]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.ffn.layers.4.weight - torch.Size([128, 1024, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.1.3.ffn.layers.4.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.2.weight - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.1.2.bias - torch.Size([128]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.0.projection.weight - torch.Size([320, 128, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.0.projection.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.0.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.0.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.0.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.1.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.2.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.3.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.4.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.5.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.6.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.7.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.8.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.9.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.10.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.11.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.12.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.13.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.14.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.15.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.16.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.norm1.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.norm1.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.attn.attn.in_proj_weight - torch.Size([960, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.attn.attn.in_proj_bias - torch.Size([960]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.attn.attn.out_proj.weight - torch.Size([320, 320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.attn.attn.out_proj.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.attn.sr.weight - torch.Size([320, 320, 2, 2]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.attn.sr.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.attn.norm.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.attn.norm.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.norm2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.norm2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.ffn.layers.0.weight - torch.Size([1280, 320, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.ffn.layers.0.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.ffn.layers.1.weight - torch.Size([1280, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.ffn.layers.1.bias - torch.Size([1280]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.ffn.layers.4.weight - torch.Size([320, 1280, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.1.17.ffn.layers.4.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.2.weight - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.2.2.bias - torch.Size([320]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.0.projection.weight - torch.Size([512, 320, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.0.projection.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.0.norm.weight - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.0.norm.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.norm1.weight - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.norm1.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.attn.attn.in_proj_weight - torch.Size([1536, 512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.attn.attn.in_proj_bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.attn.attn.out_proj.weight - torch.Size([512, 512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.attn.attn.out_proj.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.norm2.weight - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.norm2.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.ffn.layers.0.weight - torch.Size([2048, 512, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.ffn.layers.0.bias - torch.Size([2048]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.ffn.layers.1.weight - torch.Size([2048, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.ffn.layers.1.bias - torch.Size([2048]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.ffn.layers.4.weight - torch.Size([512, 2048, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.0.ffn.layers.4.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.norm1.weight - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.norm1.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.attn.attn.in_proj_weight - torch.Size([1536, 512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.attn.attn.in_proj_bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.attn.attn.out_proj.weight - torch.Size([512, 512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.attn.attn.out_proj.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.norm2.weight - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.norm2.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.ffn.layers.0.weight - torch.Size([2048, 512, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.ffn.layers.0.bias - torch.Size([2048]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.ffn.layers.1.weight - torch.Size([2048, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.ffn.layers.1.bias - torch.Size([2048]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.ffn.layers.4.weight - torch.Size([512, 2048, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.1.ffn.layers.4.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.norm1.weight - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.norm1.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.attn.attn.in_proj_weight - torch.Size([1536, 512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.attn.attn.in_proj_bias - torch.Size([1536]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.attn.attn.out_proj.weight - torch.Size([512, 512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.attn.attn.out_proj.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.norm2.weight - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.norm2.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.ffn.layers.0.weight - torch.Size([2048, 512, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.ffn.layers.0.bias - torch.Size([2048]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.ffn.layers.1.weight - torch.Size([2048, 1, 3, 3]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.ffn.layers.1.bias - torch.Size([2048]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.ffn.layers.4.weight - torch.Size([512, 2048, 1, 1]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.1.2.ffn.layers.4.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.2.weight - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+backbone.layers.3.2.bias - torch.Size([512]): 
+Initialized by user-defined `init_weights` in PyramidVisionTransformerV2  
+
+neck.lateral_convs.0.conv.weight - torch.Size([256, 64, 1, 1]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.lateral_convs.0.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.lateral_convs.1.conv.weight - torch.Size([256, 128, 1, 1]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.lateral_convs.1.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.lateral_convs.2.conv.weight - torch.Size([256, 320, 1, 1]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.lateral_convs.2.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.lateral_convs.3.conv.weight - torch.Size([256, 512, 1, 1]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.lateral_convs.3.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.fpn_convs.0.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.fpn_convs.0.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.fpn_convs.1.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.fpn_convs.1.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.fpn_convs.2.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.fpn_convs.2.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.fpn_convs.3.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.fpn_convs.3.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.downsample_convs.0.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.downsample_convs.0.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.downsample_convs.1.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.downsample_convs.1.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.downsample_convs.2.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.downsample_convs.2.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.pafpn_convs.0.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.pafpn_convs.0.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.pafpn_convs.1.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.pafpn_convs.1.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+neck.pafpn_convs.2.conv.weight - torch.Size([256, 256, 3, 3]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+neck.pafpn_convs.2.conv.bias - torch.Size([256]): 
+The value is the same before and after calling `init_weights` of CascadeRCNN  
+
+rpn_head.rpn_conv.weight - torch.Size([256, 256, 3, 3]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+rpn_head.rpn_conv.bias - torch.Size([256]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+rpn_head.rpn_cls.weight - torch.Size([3, 256, 1, 1]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+rpn_head.rpn_cls.bias - torch.Size([3]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+rpn_head.rpn_reg.weight - torch.Size([12, 256, 1, 1]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+rpn_head.rpn_reg.bias - torch.Size([12]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+roi_head.bbox_head.0.fc_cls.weight - torch.Size([11, 1024]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+roi_head.bbox_head.0.fc_cls.bias - torch.Size([11]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+roi_head.bbox_head.0.fc_reg.weight - torch.Size([4, 1024]): 
+NormalInit: mean=0, std=0.001, bias=0 
+
+roi_head.bbox_head.0.fc_reg.bias - torch.Size([4]): 
+NormalInit: mean=0, std=0.001, bias=0 
+
+roi_head.bbox_head.0.shared_fcs.0.weight - torch.Size([1024, 12544]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+roi_head.bbox_head.0.shared_fcs.0.bias - torch.Size([1024]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+roi_head.bbox_head.0.shared_fcs.1.weight - torch.Size([1024, 1024]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+roi_head.bbox_head.0.shared_fcs.1.bias - torch.Size([1024]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+roi_head.bbox_head.1.fc_cls.weight - torch.Size([11, 1024]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+roi_head.bbox_head.1.fc_cls.bias - torch.Size([11]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+roi_head.bbox_head.1.fc_reg.weight - torch.Size([4, 1024]): 
+NormalInit: mean=0, std=0.001, bias=0 
+
+roi_head.bbox_head.1.fc_reg.bias - torch.Size([4]): 
+NormalInit: mean=0, std=0.001, bias=0 
+
+roi_head.bbox_head.1.shared_fcs.0.weight - torch.Size([1024, 12544]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+roi_head.bbox_head.1.shared_fcs.0.bias - torch.Size([1024]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+roi_head.bbox_head.1.shared_fcs.1.weight - torch.Size([1024, 1024]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+roi_head.bbox_head.1.shared_fcs.1.bias - torch.Size([1024]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+roi_head.bbox_head.2.fc_cls.weight - torch.Size([11, 1024]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+roi_head.bbox_head.2.fc_cls.bias - torch.Size([11]): 
+NormalInit: mean=0, std=0.01, bias=0 
+
+roi_head.bbox_head.2.fc_reg.weight - torch.Size([4, 1024]): 
+NormalInit: mean=0, std=0.001, bias=0 
+
+roi_head.bbox_head.2.fc_reg.bias - torch.Size([4]): 
+NormalInit: mean=0, std=0.001, bias=0 
+
+roi_head.bbox_head.2.shared_fcs.0.weight - torch.Size([1024, 12544]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+roi_head.bbox_head.2.shared_fcs.0.bias - torch.Size([1024]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+roi_head.bbox_head.2.shared_fcs.1.weight - torch.Size([1024, 1024]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+
+roi_head.bbox_head.2.shared_fcs.1.bias - torch.Size([1024]): 
+XavierInit: gain=1, distribution=uniform, bias=0 
+2022-03-31 03:17:51,302 - mmdet - INFO - Start running, host: root@71b0d7392d91, work_dir: /opt/ml/detection/baseline/mmdetection/work_dirs/carscade_rcnn_pvt2_pafpn_1x_trash/Adamw_step_aug2_iou
+2022-03-31 03:17:51,302 - mmdet - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) CheckpointHook                     
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_train_epoch:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) NumClassCheckHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_train_iter:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+ -------------------- 
+after_train_iter:
+(ABOVE_NORMAL) OptimizerHook                      
+(NORMAL      ) CheckpointHook                     
+(LOW         ) IterTimerHook                      
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+after_train_epoch:
+(NORMAL      ) CheckpointHook                     
+(LOW         ) EvalHook                           
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_val_epoch:
+(NORMAL      ) NumClassCheckHook                  
+(LOW         ) IterTimerHook                      
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_iter:
+(LOW         ) IterTimerHook                      
+ -------------------- 
+after_val_epoch:
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+after_run:
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+2022-03-31 03:17:51,302 - mmdet - INFO - workflow: [('train', 1), ('val', 1)], max: 30 epochs
+2022-03-31 03:17:51,303 - mmdet - INFO - Checkpoints will be saved to /opt/ml/detection/baseline/mmdetection/work_dirs/carscade_rcnn_pvt2_pafpn_1x_trash/Adamw_step_aug2_iou by HardDiskBackend.
+2022-03-31 03:22:28,947 - mmdet - INFO - Epoch [1][400/2194]	lr: 7.982e-05, eta: 12:19:44, time: 0.678, data_time: 0.012, memory: 8272, loss_rpn_cls: 0.1936, loss_rpn_bbox: 0.0403, s0.loss_cls: 0.4062, s0.acc: 90.1514, s0.loss_bbox: 0.0891, s1.loss_cls: 0.1387, s1.acc: 94.2992, s1.loss_bbox: 0.0350, s2.loss_cls: 0.0566, s2.acc: 95.5452, s2.loss_bbox: 0.0073, loss: 0.9667
+2022-03-31 03:26:58,673 - mmdet - INFO - Epoch [1][800/2194]	lr: 1.000e-04, eta: 12:12:57, time: 0.674, data_time: 0.007, memory: 8272, loss_rpn_cls: 0.0751, loss_rpn_bbox: 0.0317, s0.loss_cls: 0.2221, s0.acc: 94.6561, s0.loss_bbox: 0.0937, s1.loss_cls: 0.0957, s1.acc: 95.2903, s1.loss_bbox: 0.0647, s2.loss_cls: 0.0389, s2.acc: 96.1689, s2.loss_bbox: 0.0277, loss: 0.6496
+2022-03-31 03:31:28,473 - mmdet - INFO - Epoch [1][1200/2194]	lr: 1.000e-04, eta: 12:07:46, time: 0.674, data_time: 0.007, memory: 8272, loss_rpn_cls: 0.0620, loss_rpn_bbox: 0.0271, s0.loss_cls: 0.2142, s0.acc: 94.4635, s0.loss_bbox: 0.0865, s1.loss_cls: 0.0999, s1.acc: 94.6495, s1.loss_bbox: 0.0671, s2.loss_cls: 0.0433, s2.acc: 95.3172, s2.loss_bbox: 0.0315, loss: 0.6316
+2022-03-31 03:35:57,140 - mmdet - INFO - Epoch [1][1600/2194]	lr: 1.000e-04, eta: 12:02:10, time: 0.672, data_time: 0.007, memory: 8272, loss_rpn_cls: 0.0557, loss_rpn_bbox: 0.0243, s0.loss_cls: 0.2031, s0.acc: 94.5845, s0.loss_bbox: 0.0785, s1.loss_cls: 0.0991, s1.acc: 94.4719, s1.loss_bbox: 0.0646, s2.loss_cls: 0.0440, s2.acc: 95.0311, s2.loss_bbox: 0.0308, loss: 0.6003
+2022-03-31 03:40:27,561 - mmdet - INFO - Exp name: cascade_rcnn_pvt2_pafpn_1x_coco.py
+2022-03-31 03:40:27,561 - mmdet - INFO - Epoch [1][2000/2194]	lr: 1.000e-04, eta: 11:57:57, time: 0.676, data_time: 0.007, memory: 8272, loss_rpn_cls: 0.0525, loss_rpn_bbox: 0.0229, s0.loss_cls: 0.2036, s0.acc: 94.5751, s0.loss_bbox: 0.0724, s1.loss_cls: 0.1020, s1.acc: 94.2497, s1.loss_bbox: 0.0609, s2.loss_cls: 0.0474, s2.acc: 94.5241, s2.loss_bbox: 0.0314, loss: 0.5931
+2022-03-31 03:42:38,346 - mmdet - INFO - Saving checkpoint at 1 epochs
+2022-03-31 03:44:22,664 - mmdet - INFO - Evaluating bbox...
+2022-03-31 03:44:27,296 - mmdet - INFO - 
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.185
+ Average Precision  (AP) @[ IoU=0.50      | area=   all | maxDets=1000 ] = 0.302
+ Average Precision  (AP) @[ IoU=0.75      | area=   all | maxDets=1000 ] = 0.192
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.005
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.093
+ Average Precision  (AP) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.222
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=100 ] = 0.367
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=300 ] = 0.367
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=   all | maxDets=1000 ] = 0.367
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= small | maxDets=1000 ] = 0.004
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area=medium | maxDets=1000 ] = 0.156
+ Average Recall     (AR) @[ IoU=0.50:0.95 | area= large | maxDets=1000 ] = 0.435
+
+2022-03-31 03:44:27,297 - mmdet - INFO - 
++---------------+-------+-------------+-------+------------+-------+
+| category      | AP    | category    | AP    | category   | AP    |
++---------------+-------+-------------+-------+------------+-------+
+| General trash | 0.090 | Paper       | 0.128 | Paper pack | 0.173 |
+| Metal         | 0.262 | Glass       | 0.183 | Plastic    | 0.162 |
+| Styrofoam     | 0.163 | Plastic bag | 0.307 | Battery    | 0.211 |
+| Clothing      | 0.172 | None        | None  | None       | None  |
++---------------+-------+-------------+-------+------------+-------+
+2022-03-31 03:44:30,610 - mmdet - INFO - Now best checkpoint is saved as best_bbox_mAP_50_epoch_1.pth.
+2022-03-31 03:44:30,610 - mmdet - INFO - Best bbox_mAP_50 is 0.3020 at 1 epoch.
+2022-03-31 03:44:30,615 - mmdet - INFO - Exp name: cascade_rcnn_pvt2_pafpn_1x_coco.py
+2022-03-31 03:44:30,615 - mmdet - INFO - Epoch(val) [1][975]	bbox_mAP: 0.1850, bbox_mAP_50: 0.3020, bbox_mAP_75: 0.1920, bbox_mAP_s: 0.0050, bbox_mAP_m: 0.0930, bbox_mAP_l: 0.2220, bbox_mAP_copypaste: 0.185 0.302 0.192 0.005 0.093 0.222
+2022-03-31 03:45:35,088 - mmdet - INFO - Exp name: cascade_rcnn_pvt2_pafpn_1x_coco.py
+2022-03-31 03:45:35,089 - mmdet - INFO - Epoch(val) [1][244]	loss_rpn_cls: 0.0687, loss_rpn_bbox: 0.0371, s0.loss_cls: 0.2744, s0.acc: 91.8467, s0.loss_bbox: 0.1158, s1.loss_cls: 0.1377, s1.acc: 91.5474, s1.loss_bbox: 0.0959, s2.loss_cls: 0.0628, s2.acc: 92.2455, s2.loss_bbox: 0.0477, loss: 0.8400
+2022-03-31 03:50:09,404 - mmdet - INFO - Epoch [2][400/2194]	lr: 1.000e-04, eta: 10:59:49, time: 0.686, data_time: 0.014, memory: 8272, loss_rpn_cls: 0.0481, loss_rpn_bbox: 0.0207, s0.loss_cls: 0.1934, s0.acc: 94.6355, s0.loss_bbox: 0.0684, s1.loss_cls: 0.1000, s1.acc: 94.2414, s1.loss_bbox: 0.0586, s2.loss_cls: 0.0473, s2.acc: 94.4204, s2.loss_bbox: 0.0310, loss: 0.5674
+2022-03-31 03:54:41,538 - mmdet - INFO - Epoch [2][800/2194]	lr: 1.000e-04, eta: 11:03:13, time: 0.680, data_time: 0.008, memory: 8272, loss_rpn_cls: 0.0559, loss_rpn_bbox: 0.0252, s0.loss_cls: 0.2029, s0.acc: 94.3848, s0.loss_bbox: 0.0724, s1.loss_cls: 0.1034, s1.acc: 93.9425, s1.loss_bbox: 0.0612, s2.loss_cls: 0.0490, s2.acc: 94.1330, s2.loss_bbox: 0.0321, loss: 0.6022
+2022-03-31 03:59:14,035 - mmdet - INFO - Epoch [2][1200/2194]	lr: 1.000e-04, eta: 11:04:52, time: 0.681, data_time: 0.008, memory: 8272, loss_rpn_cls: 0.0446, loss_rpn_bbox: 0.0213, s0.loss_cls: 0.1906, s0.acc: 94.5724, s0.loss_bbox: 0.0709, s1.loss_cls: 0.0996, s1.acc: 94.0954, s1.loss_bbox: 0.0604, s2.loss_cls: 0.0474, s2.acc: 94.2032, s2.loss_bbox: 0.0310, loss: 0.5657
+2022-03-31 04:03:47,735 - mmdet - INFO - Epoch [2][1600/2194]	lr: 1.000e-04, eta: 11:05:31, time: 0.684, data_time: 0.008, memory: 8272, loss_rpn_cls: 0.0448, loss_rpn_bbox: 0.0219, s0.loss_cls: 0.1968, s0.acc: 94.3776, s0.loss_bbox: 0.0701, s1.loss_cls: 0.1018, s1.acc: 93.9065, s1.loss_bbox: 0.0601, s2.loss_cls: 0.0488, s2.acc: 94.0516, s2.loss_bbox: 0.0308, loss: 0.5752
