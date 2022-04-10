@@ -14,20 +14,6 @@
 
 ![image](https://user-images.githubusercontent.com/57162812/162613718-c2a7bd73-774f-4d7f-a8d0-672ec731680c.png)
 
-
-# readme
-
-sdflsdkflsdkfj
-
-# 안녕하세요?
-
-## 안녕하세요??
-
-### 안녕하세요??
-
-1. 안녕?
-
-- 안녕?
 # TTA & PseudoLabeling
 
 - TTA
