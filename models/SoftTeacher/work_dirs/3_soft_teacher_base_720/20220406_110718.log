@@ -1,0 +1,1213 @@
+2022-04-06 11:07:18,668 - mmdet.ssod - INFO - [<StreamHandler <stderr> (INFO)>, <FileHandler /opt/ml/detection/baseline/SoftTeacher/work_dirs/3_soft_teacher_base_720/20220406_110718.log (INFO)>]
+2022-04-06 11:07:18,669 - mmdet.ssod - INFO - Environment info:
+------------------------------------------------------------
+sys.platform: linux
+Python: 3.7.11 (default, Jul 27 2021, 14:32:16) [GCC 7.5.0]
+CUDA available: True
+GPU 0: Tesla V100-PCIE-32GB
+CUDA_HOME: None
+GCC: gcc (Ubuntu 7.5.0-3ubuntu1~18.04) 7.5.0
+PyTorch: 1.7.1
+PyTorch compiling details: PyTorch built with:
+  - GCC 7.3
+  - C++ Version: 201402
+  - Intel(R) oneAPI Math Kernel Library Version 2021.4-Product Build 20210904 for Intel(R) 64 architecture applications
+  - Intel(R) MKL-DNN v1.6.0 (Git Hash 5ef631a030a6f73131c77892041042805a06064f)
+  - OpenMP 201511 (a.k.a. OpenMP 4.5)
+  - NNPACK is enabled
+  - CPU capability usage: AVX2
+  - CUDA Runtime 11.0
+  - NVCC architecture flags: -gencode;arch=compute_37,code=sm_37;-gencode;arch=compute_50,code=sm_50;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_37,code=compute_37
+  - CuDNN 8.0.5
+  - Magma 2.5.2
+  - Build settings: BLAS=MKL, BUILD_TYPE=Release, CXX_FLAGS= -Wno-deprecated -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -fopenmp -DNDEBUG -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DUSE_VULKAN_WRAPPER -O2 -fPIC -Wno-narrowing -Wall -Wextra -Werror=return-type -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-sign-compare -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-unused-result -Wno-unused-local-typedefs -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-stringop-overflow, PERF_WITH_AVX=1, PERF_WITH_AVX2=1, PERF_WITH_AVX512=1, USE_CUDA=ON, USE_EXCEPTION_PTR=1, USE_GFLAGS=OFF, USE_GLOG=OFF, USE_MKL=ON, USE_MKLDNN=ON, USE_MPI=OFF, USE_NCCL=ON, USE_NNPACK=ON, USE_OPENMP=ON, 
+
+TorchVision: 0.8.2
+OpenCV: 4.5.5
+MMCV: 1.3.9
+MMCV Compiler: GCC 7.3
+MMCV CUDA Compiler: 11.0
+MMDetection: 2.16.0+bef9a25
+------------------------------------------------------------
+
+2022-04-06 11:07:21,482 - mmdet.ssod - INFO - Distributed training: True
+2022-04-06 11:07:24,277 - mmdet.ssod - INFO - Config:
+model = dict(
+    type='SoftTeacher',
+    model=dict(
+        type='FasterRCNN',
+        backbone=dict(
+            type='ResNet',
+            depth=50,
+            num_stages=4,
+            out_indices=(0, 1, 2, 3),
+            frozen_stages=1,
+            norm_cfg=dict(type='BN', requires_grad=False),
+            norm_eval=True,
+            style='caffe',
+            init_cfg=dict(
+                type='Pretrained',
+                checkpoint='open-mmlab://detectron2/resnet50_caffe')),
+        neck=dict(
+            type='FPN',
+            in_channels=[256, 512, 1024, 2048],
+            out_channels=256,
+            num_outs=5),
+        rpn_head=dict(
+            type='RPNHead',
+            in_channels=256,
+            feat_channels=256,
+            anchor_generator=dict(
+                type='AnchorGenerator',
+                scales=[8],
+                ratios=[0.5, 1.0, 2.0],
+                strides=[4, 8, 16, 32, 64]),
+            bbox_coder=dict(
+                type='DeltaXYWHBBoxCoder',
+                target_means=[0.0, 0.0, 0.0, 0.0],
+                target_stds=[1.0, 1.0, 1.0, 1.0]),
+            loss_cls=dict(
+                type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0),
+            loss_bbox=dict(type='L1Loss', loss_weight=1.0)),
+        roi_head=dict(
+            type='StandardRoIHead',
+            bbox_roi_extractor=dict(
+                type='SingleRoIExtractor',
+                roi_layer=dict(
+                    type='RoIAlign', output_size=7, sampling_ratio=0),
+                out_channels=256,
+                featmap_strides=[4, 8, 16, 32]),
+            bbox_head=dict(
+                type='Shared2FCBBoxHead',
+                in_channels=256,
+                fc_out_channels=1024,
+                roi_feat_size=7,
+                num_classes=10,
+                bbox_coder=dict(
+                    type='DeltaXYWHBBoxCoder',
+                    target_means=[0.0, 0.0, 0.0, 0.0],
+                    target_stds=[0.1, 0.1, 0.2, 0.2]),
+                reg_class_agnostic=False,
+                loss_cls=dict(
+                    type='CrossEntropyLoss',
+                    use_sigmoid=False,
+                    loss_weight=1.0),
+                loss_bbox=dict(type='L1Loss', loss_weight=1.0))),
+        train_cfg=dict(
+            rpn=dict(
+                assigner=dict(
+                    type='MaxIoUAssigner',
+                    pos_iou_thr=0.7,
+                    neg_iou_thr=0.3,
+                    min_pos_iou=0.3,
+                    match_low_quality=True,
+                    ignore_iof_thr=-1),
+                sampler=dict(
+                    type='RandomSampler',
+                    num=256,
+                    pos_fraction=0.5,
+                    neg_pos_ub=-1,
+                    add_gt_as_proposals=False),
+                allowed_border=-1,
+                pos_weight=-1,
+                debug=False),
+            rpn_proposal=dict(
+                nms_pre=2000,
+                max_per_img=1000,
+                nms=dict(type='nms', iou_threshold=0.7),
+                min_bbox_size=0),
+            rcnn=dict(
+                assigner=dict(
+                    type='MaxIoUAssigner',
+                    pos_iou_thr=0.5,
+                    neg_iou_thr=0.5,
+                    min_pos_iou=0.5,
+                    match_low_quality=False,
+                    ignore_iof_thr=-1),
+                sampler=dict(
+                    type='RandomSampler',
+                    num=512,
+                    pos_fraction=0.25,
+                    neg_pos_ub=-1,
+                    add_gt_as_proposals=True),
+                pos_weight=-1,
+                debug=False)),
+        test_cfg=dict(
+            rpn=dict(
+                nms_pre=1000,
+                max_per_img=1000,
+                nms=dict(type='nms', iou_threshold=0.7),
+                min_bbox_size=0),
+            rcnn=dict(
+                score_thr=0.05,
+                nms=dict(type='nms', iou_threshold=0.5),
+                max_per_img=100))),
+    train_cfg=dict(
+        use_teacher_proposal=False,
+        pseudo_label_initial_score_thr=0.5,
+        rpn_pseudo_threshold=0.9,
+        cls_pseudo_threshold=0.9,
+        reg_pseudo_threshold=0.02,
+        jitter_times=10,
+        jitter_scale=0.06,
+        min_pseduo_box_size=0,
+        unsup_weight=2.0),
+    test_cfg=dict(inference_on='student'))
+dataset_type = 'CocoDataset'
+data_root = '/opt/ml/detection/dataset/'
+img_norm_cfg = dict(
+    mean=[103.53, 116.28, 123.675], std=[1.0, 1.0, 1.0], to_rgb=False)
+train_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(
+        type='Sequential',
+        transforms=[
+            dict(
+                type='RandResize',
+                img_scale=[(1024, 512), (1024, 1536)],
+                multiscale_mode='range',
+                keep_ratio=True),
+            dict(type='RandFlip', flip_ratio=0.5),
+            dict(
+                type='OneOf',
+                transforms=[
+                    dict(type='Identity'),
+                    dict(type='AutoContrast'),
+                    dict(type='RandEqualize'),
+                    dict(type='RandSolarize'),
+                    dict(type='RandColor'),
+                    dict(type='RandContrast'),
+                    dict(type='RandBrightness'),
+                    dict(type='RandSharpness'),
+                    dict(type='RandPosterize')
+                ])
+        ],
+        record=True),
+    dict(type='Pad', size_divisor=32),
+    dict(
+        type='Normalize',
+        mean=[103.53, 116.28, 123.675],
+        std=[1.0, 1.0, 1.0],
+        to_rgb=False),
+    dict(type='ExtraAttrs', tag='sup'),
+    dict(type='DefaultFormatBundle'),
+    dict(
+        type='Collect',
+        keys=['img', 'gt_bboxes', 'gt_labels'],
+        meta_keys=('filename', 'ori_shape', 'img_shape', 'img_norm_cfg',
+                   'pad_shape', 'scale_factor', 'tag'))
+]
+test_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(
+        type='MultiScaleFlipAug',
+        img_scale=(1024, 1024),
+        flip=False,
+        transforms=[
+            dict(type='Resize', keep_ratio=True),
+            dict(type='RandomFlip'),
+            dict(
+                type='Normalize',
+                mean=[103.53, 116.28, 123.675],
+                std=[1.0, 1.0, 1.0],
+                to_rgb=False),
+            dict(type='Pad', size_divisor=32),
+            dict(type='ImageToTensor', keys=['img']),
+            dict(type='Collect', keys=['img'])
+        ])
+]
+classes = ('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass', 'Plastic',
+           'Styrofoam', 'Plastic bag', 'Battery', 'Clothing')
+data = dict(
+    samples_per_gpu=8,
+    workers_per_gpu=8,
+    train=dict(
+        type='SemiDataset',
+        sup=dict(
+            type='CocoDataset',
+            ann_file='/opt/ml/detection/dataset/cv_train_1.json',
+            img_prefix='/opt/ml/detection/dataset/',
+            pipeline=[
+                dict(type='LoadImageFromFile'),
+                dict(type='LoadAnnotations', with_bbox=True),
+                dict(
+                    type='Sequential',
+                    transforms=[
+                        dict(
+                            type='RandResize',
+                            img_scale=[(1024, 512), (1024, 1536)],
+                            multiscale_mode='range',
+                            keep_ratio=True),
+                        dict(type='RandFlip', flip_ratio=0.5),
+                        dict(
+                            type='OneOf',
+                            transforms=[
+                                dict(type='Identity'),
+                                dict(type='AutoContrast'),
+                                dict(type='RandEqualize'),
+                                dict(type='RandSolarize'),
+                                dict(type='RandColor'),
+                                dict(type='RandContrast'),
+                                dict(type='RandBrightness'),
+                                dict(type='RandSharpness'),
+                                dict(type='RandPosterize')
+                            ])
+                    ],
+                    record=True),
+                dict(type='Pad', size_divisor=32),
+                dict(
+                    type='Normalize',
+                    mean=[103.53, 116.28, 123.675],
+                    std=[1.0, 1.0, 1.0],
+                    to_rgb=False),
+                dict(type='ExtraAttrs', tag='sup'),
+                dict(type='DefaultFormatBundle'),
+                dict(
+                    type='Collect',
+                    keys=['img', 'gt_bboxes', 'gt_labels'],
+                    meta_keys=('filename', 'ori_shape', 'img_shape',
+                               'img_norm_cfg', 'pad_shape', 'scale_factor',
+                               'tag'))
+            ],
+            classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                     'Plastic', 'Styrofoam', 'Plastic bag', 'Battery',
+                     'Clothing')),
+        unsup=dict(
+            type='CocoDataset',
+            ann_file='/opt/ml/detection/dataset/test.json',
+            img_prefix='/opt/ml/detection/dataset/',
+            pipeline=[
+                dict(type='LoadImageFromFile'),
+                dict(type='PseudoSamples', with_bbox=True),
+                dict(
+                    type='MultiBranch',
+                    unsup_student=[
+                        dict(
+                            type='Sequential',
+                            transforms=[
+                                dict(
+                                    type='RandResize',
+                                    img_scale=[(1024, 512), (1024, 1536)],
+                                    multiscale_mode='range',
+                                    keep_ratio=True),
+                                dict(type='RandFlip', flip_ratio=0.5),
+                                dict(
+                                    type='ShuffledSequential',
+                                    transforms=[
+                                        dict(
+                                            type='OneOf',
+                                            transforms=[
+                                                dict(type='Identity'),
+                                                dict(type='AutoContrast'),
+                                                dict(type='RandEqualize'),
+                                                dict(type='RandSolarize'),
+                                                dict(type='RandColor'),
+                                                dict(type='RandContrast'),
+                                                dict(type='RandBrightness'),
+                                                dict(type='RandSharpness'),
+                                                dict(type='RandPosterize')
+                                            ]),
+                                        dict(
+                                            type='OneOf',
+                                            transforms=[{
+                                                'type': 'RandTranslate',
+                                                'x': (-0.1, 0.1)
+                                            }, {
+                                                'type': 'RandTranslate',
+                                                'y': (-0.1, 0.1)
+                                            }, {
+                                                'type': 'RandRotate',
+                                                'angle': (-30, 30)
+                                            },
+                                                        [{
+                                                            'type':
+                                                            'RandShear',
+                                                            'x': (-30, 30)
+                                                        }, {
+                                                            'type':
+                                                            'RandShear',
+                                                            'y': (-30, 30)
+                                                        }]])
+                                    ]),
+                                dict(
+                                    type='RandErase',
+                                    n_iterations=(1, 5),
+                                    size=[0, 0.2],
+                                    squared=True)
+                            ],
+                            record=True),
+                        dict(type='Pad', size_divisor=32),
+                        dict(
+                            type='Normalize',
+                            mean=[103.53, 116.28, 123.675],
+                            std=[1.0, 1.0, 1.0],
+                            to_rgb=False),
+                        dict(type='ExtraAttrs', tag='unsup_student'),
+                        dict(type='DefaultFormatBundle'),
+                        dict(
+                            type='Collect',
+                            keys=['img', 'gt_bboxes', 'gt_labels'],
+                            meta_keys=('filename', 'ori_shape', 'img_shape',
+                                       'img_norm_cfg', 'pad_shape',
+                                       'scale_factor', 'tag',
+                                       'transform_matrix'))
+                    ],
+                    unsup_teacher=[
+                        dict(
+                            type='Sequential',
+                            transforms=[
+                                dict(
+                                    type='RandResize',
+                                    img_scale=[(1024, 512), (1024, 1536)],
+                                    multiscale_mode='range',
+                                    keep_ratio=True),
+                                dict(type='RandFlip', flip_ratio=0.5)
+                            ],
+                            record=True),
+                        dict(type='Pad', size_divisor=32),
+                        dict(
+                            type='Normalize',
+                            mean=[103.53, 116.28, 123.675],
+                            std=[1.0, 1.0, 1.0],
+                            to_rgb=False),
+                        dict(type='ExtraAttrs', tag='unsup_teacher'),
+                        dict(type='DefaultFormatBundle'),
+                        dict(
+                            type='Collect',
+                            keys=['img', 'gt_bboxes', 'gt_labels'],
+                            meta_keys=('filename', 'ori_shape', 'img_shape',
+                                       'img_norm_cfg', 'pad_shape',
+                                       'scale_factor', 'tag',
+                                       'transform_matrix'))
+                    ])
+            ],
+            filter_empty_gt=False,
+            classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                     'Plastic', 'Styrofoam', 'Plastic bag', 'Battery',
+                     'Clothing'))),
+    val=dict(
+        type='CocoDataset',
+        classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery', 'Clothing'),
+        ann_file='/opt/ml/detection/dataset/cv_val_1.json',
+        img_prefix='/opt/ml/detection/dataset/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(1024, 1024),
+                flip=False,
+                transforms=[
+                    dict(type='Resize', keep_ratio=True),
+                    dict(type='RandomFlip'),
+                    dict(
+                        type='Normalize',
+                        mean=[103.53, 116.28, 123.675],
+                        std=[1.0, 1.0, 1.0],
+                        to_rgb=False),
+                    dict(type='Pad', size_divisor=32),
+                    dict(type='ImageToTensor', keys=['img']),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ]),
+    test=dict(
+        type='CocoDataset',
+        classes=('General trash', 'Paper', 'Paper pack', 'Metal', 'Glass',
+                 'Plastic', 'Styrofoam', 'Plastic bag', 'Battery', 'Clothing'),
+        ann_file='/opt/ml/detection/dataset/test.json',
+        img_prefix='/opt/ml/detection/dataset/',
+        pipeline=[
+            dict(type='LoadImageFromFile'),
+            dict(
+                type='MultiScaleFlipAug',
+                img_scale=(1024, 1024),
+                flip=False,
+                transforms=[
+                    dict(type='Resize', keep_ratio=True),
+                    dict(type='RandomFlip'),
+                    dict(
+                        type='Normalize',
+                        mean=[103.53, 116.28, 123.675],
+                        std=[1.0, 1.0, 1.0],
+                        to_rgb=False),
+                    dict(type='Pad', size_divisor=32),
+                    dict(type='ImageToTensor', keys=['img']),
+                    dict(type='Collect', keys=['img'])
+                ])
+        ]),
+    sampler=dict(
+        train=dict(
+            type='SemiBalanceSampler',
+            sample_ratio=[1, 1],
+            by_prob=True,
+            epoch_length=7330)))
+evaluation = dict(interval=4000, metric='bbox', type='SubModulesDistEvalHook')
+optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
+optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
+lr_config = dict(
+    policy='step',
+    warmup='linear',
+    warmup_iters=500,
+    warmup_ratio=0.001,
+    step=[480000, 640000])
+runner = dict(type='IterBasedRunner', max_iters=720000)
+checkpoint_config = dict(max_keep_ckpts=3, interval=1)
+log_config = dict(
+    interval=50,
+    hooks=[
+        dict(type='TextLoggerHook', by_epoch=False),
+        dict(
+            type='WandbLoggerHook',
+            init_kwargs=dict(
+                project='pre_release',
+                name='MM_3_soft_teacher_base_720_res50',
+                config=dict(
+                    work_dirs='./work_dirs/3_soft_teacher_base_720',
+                    total_step=720000)),
+            by_epoch=False)
+    ])
+custom_hooks = [
+    dict(type='NumClassCheckHook'),
+    dict(type='WeightSummary'),
+    dict(type='MeanTeacher', momentum=0.999, interval=1, warm_up=0)
+]
+dist_params = dict(backend='nccl')
+log_level = 'INFO'
+load_from = None
+resume_from = None
+workflow = [('train', 1)]
+mmdet_base = '../../thirdparty/mmdetection/configs/_base_'
+strong_pipeline = [
+    dict(
+        type='Sequential',
+        transforms=[
+            dict(
+                type='RandResize',
+                img_scale=[(1024, 512), (1024, 1536)],
+                multiscale_mode='range',
+                keep_ratio=True),
+            dict(type='RandFlip', flip_ratio=0.5),
+            dict(
+                type='ShuffledSequential',
+                transforms=[
+                    dict(
+                        type='OneOf',
+                        transforms=[
+                            dict(type='Identity'),
+                            dict(type='AutoContrast'),
+                            dict(type='RandEqualize'),
+                            dict(type='RandSolarize'),
+                            dict(type='RandColor'),
+                            dict(type='RandContrast'),
+                            dict(type='RandBrightness'),
+                            dict(type='RandSharpness'),
+                            dict(type='RandPosterize')
+                        ]),
+                    dict(
+                        type='OneOf',
+                        transforms=[{
+                            'type': 'RandTranslate',
+                            'x': (-0.1, 0.1)
+                        }, {
+                            'type': 'RandTranslate',
+                            'y': (-0.1, 0.1)
+                        }, {
+                            'type': 'RandRotate',
+                            'angle': (-30, 30)
+                        },
+                                    [{
+                                        'type': 'RandShear',
+                                        'x': (-30, 30)
+                                    }, {
+                                        'type': 'RandShear',
+                                        'y': (-30, 30)
+                                    }]])
+                ]),
+            dict(
+                type='RandErase',
+                n_iterations=(1, 5),
+                size=[0, 0.2],
+                squared=True)
+        ],
+        record=True),
+    dict(type='Pad', size_divisor=32),
+    dict(
+        type='Normalize',
+        mean=[103.53, 116.28, 123.675],
+        std=[1.0, 1.0, 1.0],
+        to_rgb=False),
+    dict(type='ExtraAttrs', tag='unsup_student'),
+    dict(type='DefaultFormatBundle'),
+    dict(
+        type='Collect',
+        keys=['img', 'gt_bboxes', 'gt_labels'],
+        meta_keys=('filename', 'ori_shape', 'img_shape', 'img_norm_cfg',
+                   'pad_shape', 'scale_factor', 'tag', 'transform_matrix'))
+]
+weak_pipeline = [
+    dict(
+        type='Sequential',
+        transforms=[
+            dict(
+                type='RandResize',
+                img_scale=[(1024, 512), (1024, 1536)],
+                multiscale_mode='range',
+                keep_ratio=True),
+            dict(type='RandFlip', flip_ratio=0.5)
+        ],
+        record=True),
+    dict(type='Pad', size_divisor=32),
+    dict(
+        type='Normalize',
+        mean=[103.53, 116.28, 123.675],
+        std=[1.0, 1.0, 1.0],
+        to_rgb=False),
+    dict(type='ExtraAttrs', tag='unsup_teacher'),
+    dict(type='DefaultFormatBundle'),
+    dict(
+        type='Collect',
+        keys=['img', 'gt_bboxes', 'gt_labels'],
+        meta_keys=('filename', 'ori_shape', 'img_shape', 'img_norm_cfg',
+                   'pad_shape', 'scale_factor', 'tag', 'transform_matrix'))
+]
+unsup_pipeline = [
+    dict(type='LoadImageFromFile'),
+    dict(type='PseudoSamples', with_bbox=True),
+    dict(
+        type='MultiBranch',
+        unsup_student=[
+            dict(
+                type='Sequential',
+                transforms=[
+                    dict(
+                        type='RandResize',
+                        img_scale=[(1024, 512), (1024, 1536)],
+                        multiscale_mode='range',
+                        keep_ratio=True),
+                    dict(type='RandFlip', flip_ratio=0.5),
+                    dict(
+                        type='ShuffledSequential',
+                        transforms=[
+                            dict(
+                                type='OneOf',
+                                transforms=[
+                                    dict(type='Identity'),
+                                    dict(type='AutoContrast'),
+                                    dict(type='RandEqualize'),
+                                    dict(type='RandSolarize'),
+                                    dict(type='RandColor'),
+                                    dict(type='RandContrast'),
+                                    dict(type='RandBrightness'),
+                                    dict(type='RandSharpness'),
+                                    dict(type='RandPosterize')
+                                ]),
+                            dict(
+                                type='OneOf',
+                                transforms=[{
+                                    'type': 'RandTranslate',
+                                    'x': (-0.1, 0.1)
+                                }, {
+                                    'type': 'RandTranslate',
+                                    'y': (-0.1, 0.1)
+                                }, {
+                                    'type': 'RandRotate',
+                                    'angle': (-30, 30)
+                                },
+                                            [{
+                                                'type': 'RandShear',
+                                                'x': (-30, 30)
+                                            }, {
+                                                'type': 'RandShear',
+                                                'y': (-30, 30)
+                                            }]])
+                        ]),
+                    dict(
+                        type='RandErase',
+                        n_iterations=(1, 5),
+                        size=[0, 0.2],
+                        squared=True)
+                ],
+                record=True),
+            dict(type='Pad', size_divisor=32),
+            dict(
+                type='Normalize',
+                mean=[103.53, 116.28, 123.675],
+                std=[1.0, 1.0, 1.0],
+                to_rgb=False),
+            dict(type='ExtraAttrs', tag='unsup_student'),
+            dict(type='DefaultFormatBundle'),
+            dict(
+                type='Collect',
+                keys=['img', 'gt_bboxes', 'gt_labels'],
+                meta_keys=('filename', 'ori_shape', 'img_shape',
+                           'img_norm_cfg', 'pad_shape', 'scale_factor', 'tag',
+                           'transform_matrix'))
+        ],
+        unsup_teacher=[
+            dict(
+                type='Sequential',
+                transforms=[
+                    dict(
+                        type='RandResize',
+                        img_scale=[(1024, 512), (1024, 1536)],
+                        multiscale_mode='range',
+                        keep_ratio=True),
+                    dict(type='RandFlip', flip_ratio=0.5)
+                ],
+                record=True),
+            dict(type='Pad', size_divisor=32),
+            dict(
+                type='Normalize',
+                mean=[103.53, 116.28, 123.675],
+                std=[1.0, 1.0, 1.0],
+                to_rgb=False),
+            dict(type='ExtraAttrs', tag='unsup_teacher'),
+            dict(type='DefaultFormatBundle'),
+            dict(
+                type='Collect',
+                keys=['img', 'gt_bboxes', 'gt_labels'],
+                meta_keys=('filename', 'ori_shape', 'img_shape',
+                           'img_norm_cfg', 'pad_shape', 'scale_factor', 'tag',
+                           'transform_matrix'))
+        ])
+]
+fp16 = dict(loss_scale='dynamic')
+seed = 2022
+gpu_ids = range(0, 1)
+work_dir = './work_dirs/3_soft_teacher_base_720'
+cfg_name = 'soft_teacher_faster_rcnn_r50_caffe_fpn_coco_full_720k'
+
+2022-04-06 11:07:26,329 - mmdet.ssod - INFO - Start running, host: root@71b0d7392d91, work_dir: /opt/ml/detection/baseline/SoftTeacher/work_dirs/3_soft_teacher_base_720
+2022-04-06 11:07:26,330 - mmdet.ssod - INFO - Hooks will be executed in the following order:
+before_run:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(ABOVE_NORMAL) Fp16OptimizerHook                  
+(NORMAL      ) CheckpointHook                     
+(NORMAL      ) WeightSummary                      
+(NORMAL      ) MeanTeacher                        
+(80          ) SubModulesDistEvalHook             
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_train_epoch:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) NumClassCheckHook                  
+(80          ) SubModulesDistEvalHook             
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_train_iter:
+(VERY_HIGH   ) StepLrUpdaterHook                  
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) MeanTeacher                        
+(80          ) SubModulesDistEvalHook             
+ -------------------- 
+after_train_iter:
+(ABOVE_NORMAL) Fp16OptimizerHook                  
+(NORMAL      ) CheckpointHook                     
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) MeanTeacher                        
+(80          ) SubModulesDistEvalHook             
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+after_train_epoch:
+(NORMAL      ) CheckpointHook                     
+(80          ) SubModulesDistEvalHook             
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_val_epoch:
+(NORMAL      ) IterTimerHook                      
+(NORMAL      ) NumClassCheckHook                  
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+before_val_iter:
+(NORMAL      ) IterTimerHook                      
+ -------------------- 
+after_val_iter:
+(NORMAL      ) IterTimerHook                      
+ -------------------- 
+after_val_epoch:
+(VERY_LOW    ) TextLoggerHook                     
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+after_run:
+(VERY_LOW    ) WandbLoggerHook                    
+ -------------------- 
+2022-04-06 11:07:26,495 - mmdet.ssod - INFO - workflow: [('train', 1)], max: 720000 iters
+2022-04-06 11:07:26,581 - mmdet.ssod - INFO - 
++--------------------------------------------------------------------------------------------------------------------+
+|                                                 Model Information                                                  |
++------------------------------------------------+-----------+---------------+-----------------------+------+--------+
+|                      Name                      | Optimized |     Shape     | Value Scale [Min,Max] |  Lr  |   Wd   |
++------------------------------------------------+-----------+---------------+-----------------------+------+--------+
+|         teacher.backbone.conv1.weight          |     N     |    64X3X7X7   |  Min:-0.671 Max:0.704 | 0.01 | 0.0001 |
+|          teacher.backbone.bn1.weight           |     N     |       64      |  Min:0.513 Max:2.669  | 0.01 | 0.0001 |
+|           teacher.backbone.bn1.bias            |     N     |       64      |  Min:-2.654 Max:6.354 | 0.01 | 0.0001 |
+|     teacher.backbone.layer1.0.conv1.weight     |     N     |   64X64X1X1   |  Min:-0.717 Max:0.392 | 0.01 | 0.0001 |
+|      teacher.backbone.layer1.0.bn1.weight      |     N     |       64      |  Min:0.509 Max:2.066  | 0.01 | 0.0001 |
+|       teacher.backbone.layer1.0.bn1.bias       |     N     |       64      |  Min:-2.411 Max:3.608 | 0.01 | 0.0001 |
+|     teacher.backbone.layer1.0.conv2.weight     |     N     |   64X64X3X3   |  Min:-0.390 Max:0.364 | 0.01 | 0.0001 |
+|      teacher.backbone.layer1.0.bn2.weight      |     N     |       64      |  Min:0.420 Max:2.530  | 0.01 | 0.0001 |
+|       teacher.backbone.layer1.0.bn2.bias       |     N     |       64      |  Min:-2.286 Max:5.913 | 0.01 | 0.0001 |
+|     teacher.backbone.layer1.0.conv3.weight     |     N     |   256X64X1X1  |  Min:-0.397 Max:0.348 | 0.01 | 0.0001 |
+|      teacher.backbone.layer1.0.bn3.weight      |     N     |      256      |  Min:0.011 Max:2.820  | 0.01 | 0.0001 |
+|       teacher.backbone.layer1.0.bn3.bias       |     N     |      256      |  Min:-1.126 Max:1.522 | 0.01 | 0.0001 |
+| teacher.backbone.layer1.0.downsample.0.weight  |     N     |   256X64X1X1  |  Min:-0.772 Max:0.900 | 0.01 | 0.0001 |
+| teacher.backbone.layer1.0.downsample.1.weight  |     N     |      256      |  Min:0.004 Max:3.064  | 0.01 | 0.0001 |
+|  teacher.backbone.layer1.0.downsample.1.bias   |     N     |      256      |  Min:-1.126 Max:1.522 | 0.01 | 0.0001 |
+|     teacher.backbone.layer1.1.conv1.weight     |     N     |   64X256X1X1  |  Min:-0.297 Max:0.220 | 0.01 | 0.0001 |
+|      teacher.backbone.layer1.1.bn1.weight      |     N     |       64      |  Min:0.746 Max:1.949  | 0.01 | 0.0001 |
+|       teacher.backbone.layer1.1.bn1.bias       |     N     |       64      |  Min:-1.688 Max:1.578 | 0.01 | 0.0001 |
+|     teacher.backbone.layer1.1.conv2.weight     |     N     |   64X64X3X3   |  Min:-0.240 Max:0.318 | 0.01 | 0.0001 |
+|      teacher.backbone.layer1.1.bn2.weight      |     N     |       64      |  Min:0.621 Max:1.618  | 0.01 | 0.0001 |
+|       teacher.backbone.layer1.1.bn2.bias       |     N     |       64      |  Min:-2.003 Max:2.398 | 0.01 | 0.0001 |
+|     teacher.backbone.layer1.1.conv3.weight     |     N     |   256X64X1X1  |  Min:-0.240 Max:0.280 | 0.01 | 0.0001 |
+|      teacher.backbone.layer1.1.bn3.weight      |     N     |      256      |  Min:-0.017 Max:2.130 | 0.01 | 0.0001 |
+|       teacher.backbone.layer1.1.bn3.bias       |     N     |      256      |  Min:-1.711 Max:1.291 | 0.01 | 0.0001 |
+|     teacher.backbone.layer1.2.conv1.weight     |     N     |   64X256X1X1  |  Min:-0.210 Max:0.264 | 0.01 | 0.0001 |
+|      teacher.backbone.layer1.2.bn1.weight      |     N     |       64      |  Min:0.574 Max:1.688  | 0.01 | 0.0001 |
+|       teacher.backbone.layer1.2.bn1.bias       |     N     |       64      |  Min:-1.876 Max:1.090 | 0.01 | 0.0001 |
+|     teacher.backbone.layer1.2.conv2.weight     |     N     |   64X64X3X3   |  Min:-0.218 Max:0.201 | 0.01 | 0.0001 |
+|      teacher.backbone.layer1.2.bn2.weight      |     N     |       64      |  Min:0.757 Max:1.649  | 0.01 | 0.0001 |
+|       teacher.backbone.layer1.2.bn2.bias       |     N     |       64      |  Min:-2.221 Max:1.878 | 0.01 | 0.0001 |
+|     teacher.backbone.layer1.2.conv3.weight     |     N     |   256X64X1X1  |  Min:-0.275 Max:0.350 | 0.01 | 0.0001 |
+|      teacher.backbone.layer1.2.bn3.weight      |     N     |      256      |  Min:-0.058 Max:2.154 | 0.01 | 0.0001 |
+|       teacher.backbone.layer1.2.bn3.bias       |     N     |      256      |  Min:-1.570 Max:1.535 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.0.conv1.weight     |     N     |  128X256X1X1  |  Min:-0.334 Max:0.300 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.0.bn1.weight      |     N     |      128      |  Min:0.610 Max:1.642  | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.0.bn1.bias       |     N     |      128      |  Min:-1.579 Max:1.449 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.0.conv2.weight     |     N     |  128X128X3X3  |  Min:-0.384 Max:0.377 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.0.bn2.weight      |     N     |      128      |  Min:0.605 Max:1.622  | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.0.bn2.bias       |     N     |      128      |  Min:-2.768 Max:1.747 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.0.conv3.weight     |     N     |  512X128X1X1  |  Min:-0.374 Max:0.434 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.0.bn3.weight      |     N     |      512      |  Min:-0.007 Max:2.730 | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.0.bn3.bias       |     N     |      512      |  Min:-1.545 Max:1.256 | 0.01 | 0.0001 |
+| teacher.backbone.layer2.0.downsample.0.weight  |     N     |  512X256X1X1  |  Min:-0.466 Max:0.642 | 0.01 | 0.0001 |
+| teacher.backbone.layer2.0.downsample.1.weight  |     N     |      512      |  Min:0.006 Max:2.552  | 0.01 | 0.0001 |
+|  teacher.backbone.layer2.0.downsample.1.bias   |     N     |      512      |  Min:-1.545 Max:1.256 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.1.conv1.weight     |     N     |  128X512X1X1  |  Min:-0.162 Max:0.195 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.1.bn1.weight      |     N     |      128      |  Min:0.578 Max:1.429  | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.1.bn1.bias       |     N     |      128      |  Min:-4.348 Max:0.588 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.1.conv2.weight     |     N     |  128X128X3X3  |  Min:-0.176 Max:0.177 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.1.bn2.weight      |     N     |      128      |  Min:0.511 Max:1.794  | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.1.bn2.bias       |     N     |      128      |  Min:-3.825 Max:1.343 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.1.conv3.weight     |     N     |  512X128X1X1  |  Min:-0.344 Max:0.336 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.1.bn3.weight      |     N     |      512      |  Min:-0.072 Max:2.122 | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.1.bn3.bias       |     N     |      512      |  Min:-1.502 Max:1.166 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.2.conv1.weight     |     N     |  128X512X1X1  |  Min:-0.330 Max:0.369 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.2.bn1.weight      |     N     |      128      |  Min:0.406 Max:1.696  | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.2.bn1.bias       |     N     |      128      |  Min:-2.696 Max:1.944 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.2.conv2.weight     |     N     |  128X128X3X3  |  Min:-0.326 Max:0.374 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.2.bn2.weight      |     N     |      128      |  Min:0.460 Max:2.179  | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.2.bn2.bias       |     N     |      128      |  Min:-1.587 Max:0.589 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.2.conv3.weight     |     N     |  512X128X1X1  |  Min:-0.288 Max:0.232 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.2.bn3.weight      |     N     |      512      |  Min:-0.006 Max:3.043 | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.2.bn3.bias       |     N     |      512      |  Min:-2.369 Max:0.440 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.3.conv1.weight     |     N     |  128X512X1X1  |  Min:-0.298 Max:0.346 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.3.bn1.weight      |     N     |      128      |  Min:0.736 Max:2.394  | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.3.bn1.bias       |     N     |      128      |  Min:-2.643 Max:0.756 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.3.conv2.weight     |     N     |  128X128X3X3  |  Min:-0.272 Max:0.208 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.3.bn2.weight      |     N     |      128      |  Min:0.682 Max:1.694  | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.3.bn2.bias       |     N     |      128      |  Min:-1.365 Max:1.599 | 0.01 | 0.0001 |
+|     teacher.backbone.layer2.3.conv3.weight     |     N     |  512X128X1X1  |  Min:-0.279 Max:0.281 | 0.01 | 0.0001 |
+|      teacher.backbone.layer2.3.bn3.weight      |     N     |      512      |  Min:-0.009 Max:1.721 | 0.01 | 0.0001 |
+|       teacher.backbone.layer2.3.bn3.bias       |     N     |      512      |  Min:-1.897 Max:1.182 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.0.conv1.weight     |     N     |  256X512X1X1  |  Min:-0.230 Max:0.341 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.0.bn1.weight      |     N     |      256      |  Min:0.621 Max:1.636  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.0.bn1.bias       |     N     |      256      |  Min:-1.420 Max:0.917 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.0.conv2.weight     |     N     |  256X256X3X3  |  Min:-0.267 Max:0.179 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.0.bn2.weight      |     N     |      256      |  Min:0.585 Max:1.749  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.0.bn2.bias       |     N     |      256      |  Min:-1.837 Max:1.398 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.0.conv3.weight     |     N     |  1024X256X1X1 |  Min:-0.333 Max:0.384 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.0.bn3.weight      |     N     |      1024     |  Min:0.071 Max:2.367  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.0.bn3.bias       |     N     |      1024     |  Min:-0.938 Max:0.887 | 0.01 | 0.0001 |
+| teacher.backbone.layer3.0.downsample.0.weight  |     N     |  1024X512X1X1 |  Min:-0.333 Max:0.421 | 0.01 | 0.0001 |
+| teacher.backbone.layer3.0.downsample.1.weight  |     N     |      1024     |  Min:0.034 Max:2.779  | 0.01 | 0.0001 |
+|  teacher.backbone.layer3.0.downsample.1.bias   |     N     |      1024     |  Min:-0.938 Max:0.887 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.1.conv1.weight     |     N     |  256X1024X1X1 |  Min:-0.197 Max:0.236 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.1.bn1.weight      |     N     |      256      |  Min:0.566 Max:1.743  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.1.bn1.bias       |     N     |      256      |  Min:-2.703 Max:1.042 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.1.conv2.weight     |     N     |  256X256X3X3  |  Min:-0.436 Max:0.196 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.1.bn2.weight      |     N     |      256      |  Min:0.515 Max:2.301  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.1.bn2.bias       |     N     |      256      |  Min:-2.548 Max:1.856 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.1.conv3.weight     |     N     |  1024X256X1X1 |  Min:-0.438 Max:0.295 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.1.bn3.weight      |     N     |      1024     |  Min:0.055 Max:1.943  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.1.bn3.bias       |     N     |      1024     |  Min:-1.647 Max:1.016 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.2.conv1.weight     |     N     |  256X1024X1X1 |  Min:-0.387 Max:0.337 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.2.bn1.weight      |     N     |      256      |  Min:0.463 Max:1.886  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.2.bn1.bias       |     N     |      256      |  Min:-2.399 Max:0.488 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.2.conv2.weight     |     N     |  256X256X3X3  |  Min:-0.165 Max:0.258 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.2.bn2.weight      |     N     |      256      |  Min:0.555 Max:1.901  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.2.bn2.bias       |     N     |      256      |  Min:-1.655 Max:0.704 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.2.conv3.weight     |     N     |  1024X256X1X1 |  Min:-0.290 Max:0.261 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.2.bn3.weight      |     N     |      1024     |  Min:0.049 Max:1.450  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.2.bn3.bias       |     N     |      1024     |  Min:-1.201 Max:0.587 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.3.conv1.weight     |     N     |  256X1024X1X1 |  Min:-0.194 Max:0.295 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.3.bn1.weight      |     N     |      256      |  Min:0.442 Max:1.353  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.3.bn1.bias       |     N     |      256      |  Min:-2.322 Max:0.509 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.3.conv2.weight     |     N     |  256X256X3X3  |  Min:-0.201 Max:0.176 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.3.bn2.weight      |     N     |      256      |  Min:0.529 Max:1.939  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.3.bn2.bias       |     N     |      256      |  Min:-1.610 Max:0.776 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.3.conv3.weight     |     N     |  1024X256X1X1 |  Min:-0.205 Max:0.239 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.3.bn3.weight      |     N     |      1024     |  Min:-0.037 Max:1.646 | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.3.bn3.bias       |     N     |      1024     |  Min:-1.484 Max:0.344 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.4.conv1.weight     |     N     |  256X1024X1X1 |  Min:-0.226 Max:0.306 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.4.bn1.weight      |     N     |      256      |  Min:0.438 Max:1.446  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.4.bn1.bias       |     N     |      256      |  Min:-2.511 Max:0.557 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.4.conv2.weight     |     N     |  256X256X3X3  |  Min:-0.147 Max:0.223 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.4.bn2.weight      |     N     |      256      |  Min:0.651 Max:1.858  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.4.bn2.bias       |     N     |      256      |  Min:-1.588 Max:0.661 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.4.conv3.weight     |     N     |  1024X256X1X1 |  Min:-0.178 Max:0.265 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.4.bn3.weight      |     N     |      1024     |  Min:-0.001 Max:1.501 | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.4.bn3.bias       |     N     |      1024     |  Min:-1.108 Max:0.639 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.5.conv1.weight     |     N     |  256X1024X1X1 |  Min:-0.153 Max:0.330 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.5.bn1.weight      |     N     |      256      |  Min:0.425 Max:1.547  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.5.bn1.bias       |     N     |      256      |  Min:-1.972 Max:0.823 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.5.conv2.weight     |     N     |  256X256X3X3  |  Min:-0.293 Max:0.276 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.5.bn2.weight      |     N     |      256      |  Min:0.650 Max:2.942  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.5.bn2.bias       |     N     |      256      |  Min:-1.093 Max:0.771 | 0.01 | 0.0001 |
+|     teacher.backbone.layer3.5.conv3.weight     |     N     |  1024X256X1X1 |  Min:-0.232 Max:0.294 | 0.01 | 0.0001 |
+|      teacher.backbone.layer3.5.bn3.weight      |     N     |      1024     |  Min:0.004 Max:1.984  | 0.01 | 0.0001 |
+|       teacher.backbone.layer3.5.bn3.bias       |     N     |      1024     |  Min:-1.636 Max:1.250 | 0.01 | 0.0001 |
+|     teacher.backbone.layer4.0.conv1.weight     |     N     |  512X1024X1X1 |  Min:-0.184 Max:0.331 | 0.01 | 0.0001 |
+|      teacher.backbone.layer4.0.bn1.weight      |     N     |      512      |  Min:0.535 Max:1.594  | 0.01 | 0.0001 |
+|       teacher.backbone.layer4.0.bn1.bias       |     N     |      512      |  Min:-1.756 Max:0.288 | 0.01 | 0.0001 |
+|     teacher.backbone.layer4.0.conv2.weight     |     N     |  512X512X3X3  |  Min:-0.175 Max:0.272 | 0.01 | 0.0001 |
+|      teacher.backbone.layer4.0.bn2.weight      |     N     |      512      |  Min:0.456 Max:1.542  | 0.01 | 0.0001 |
+|       teacher.backbone.layer4.0.bn2.bias       |     N     |      512      |  Min:-1.820 Max:0.839 | 0.01 | 0.0001 |
+|     teacher.backbone.layer4.0.conv3.weight     |     N     |  2048X512X1X1 |  Min:-0.332 Max:0.432 | 0.01 | 0.0001 |
+|      teacher.backbone.layer4.0.bn3.weight      |     N     |      2048     |  Min:0.888 Max:3.492  | 0.01 | 0.0001 |
+|       teacher.backbone.layer4.0.bn3.bias       |     N     |      2048     |  Min:-1.810 Max:0.980 | 0.01 | 0.0001 |
+| teacher.backbone.layer4.0.downsample.0.weight  |     N     | 2048X1024X1X1 |  Min:-0.622 Max:0.465 | 0.01 | 0.0001 |
+| teacher.backbone.layer4.0.downsample.1.weight  |     N     |      2048     |  Min:0.261 Max:4.575  | 0.01 | 0.0001 |
+|  teacher.backbone.layer4.0.downsample.1.bias   |     N     |      2048     |  Min:-1.810 Max:0.980 | 0.01 | 0.0001 |
+|     teacher.backbone.layer4.1.conv1.weight     |     N     |  512X2048X1X1 |  Min:-0.316 Max:0.577 | 0.01 | 0.0001 |
+|      teacher.backbone.layer4.1.bn1.weight      |     N     |      512      |  Min:0.398 Max:1.429  | 0.01 | 0.0001 |
+|       teacher.backbone.layer4.1.bn1.bias       |     N     |      512      |  Min:-1.380 Max:0.428 | 0.01 | 0.0001 |
+|     teacher.backbone.layer4.1.conv2.weight     |     N     |  512X512X3X3  |  Min:-0.217 Max:0.284 | 0.01 | 0.0001 |
+|      teacher.backbone.layer4.1.bn2.weight      |     N     |      512      |  Min:0.349 Max:1.550  | 0.01 | 0.0001 |
+|       teacher.backbone.layer4.1.bn2.bias       |     N     |      512      |  Min:-1.867 Max:0.880 | 0.01 | 0.0001 |
+|     teacher.backbone.layer4.1.conv3.weight     |     N     |  2048X512X1X1 |  Min:-0.200 Max:0.277 | 0.01 | 0.0001 |
+|      teacher.backbone.layer4.1.bn3.weight      |     N     |      2048     |  Min:0.574 Max:2.847  | 0.01 | 0.0001 |
+|       teacher.backbone.layer4.1.bn3.bias       |     N     |      2048     |  Min:-2.638 Max:0.544 | 0.01 | 0.0001 |
+|     teacher.backbone.layer4.2.conv1.weight     |     N     |  512X2048X1X1 |  Min:-0.289 Max:0.514 | 0.01 | 0.0001 |
+|      teacher.backbone.layer4.2.bn1.weight      |     N     |      512      |  Min:0.366 Max:1.249  | 0.01 | 0.0001 |
+|       teacher.backbone.layer4.2.bn1.bias       |     N     |      512      |  Min:-1.664 Max:0.753 | 0.01 | 0.0001 |
+|     teacher.backbone.layer4.2.conv2.weight     |     N     |  512X512X3X3  |  Min:-0.142 Max:0.144 | 0.01 | 0.0001 |
+|      teacher.backbone.layer4.2.bn2.weight      |     N     |      512      |  Min:0.516 Max:1.335  | 0.01 | 0.0001 |
+|       teacher.backbone.layer4.2.bn2.bias       |     N     |      512      |  Min:-1.871 Max:1.181 | 0.01 | 0.0001 |
+|     teacher.backbone.layer4.2.conv3.weight     |     N     |  2048X512X1X1 |  Min:-0.135 Max:0.300 | 0.01 | 0.0001 |
+|      teacher.backbone.layer4.2.bn3.weight      |     N     |      2048     |  Min:0.435 Max:3.073  | 0.01 | 0.0001 |
+|       teacher.backbone.layer4.2.bn3.bias       |     N     |      2048     | Min:-3.885 Max:-0.249 | 0.01 | 0.0001 |
+|    teacher.neck.lateral_convs.0.conv.weight    |     N     |  256X256X1X1  |  Min:-0.108 Max:0.108 | 0.01 | 0.0001 |
+|     teacher.neck.lateral_convs.0.conv.bias     |     N     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|    teacher.neck.lateral_convs.1.conv.weight    |     N     |  256X512X1X1  |  Min:-0.088 Max:0.088 | 0.01 | 0.0001 |
+|     teacher.neck.lateral_convs.1.conv.bias     |     N     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|    teacher.neck.lateral_convs.2.conv.weight    |     N     |  256X1024X1X1 |  Min:-0.068 Max:0.068 | 0.01 | 0.0001 |
+|     teacher.neck.lateral_convs.2.conv.bias     |     N     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|    teacher.neck.lateral_convs.3.conv.weight    |     N     |  256X2048X1X1 |  Min:-0.051 Max:0.051 | 0.01 | 0.0001 |
+|     teacher.neck.lateral_convs.3.conv.bias     |     N     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|      teacher.neck.fpn_convs.0.conv.weight      |     N     |  256X256X3X3  |  Min:-0.036 Max:0.036 | 0.01 | 0.0001 |
+|       teacher.neck.fpn_convs.0.conv.bias       |     N     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|      teacher.neck.fpn_convs.1.conv.weight      |     N     |  256X256X3X3  |  Min:-0.036 Max:0.036 | 0.01 | 0.0001 |
+|       teacher.neck.fpn_convs.1.conv.bias       |     N     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|      teacher.neck.fpn_convs.2.conv.weight      |     N     |  256X256X3X3  |  Min:-0.036 Max:0.036 | 0.01 | 0.0001 |
+|       teacher.neck.fpn_convs.2.conv.bias       |     N     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|      teacher.neck.fpn_convs.3.conv.weight      |     N     |  256X256X3X3  |  Min:-0.036 Max:0.036 | 0.01 | 0.0001 |
+|       teacher.neck.fpn_convs.3.conv.bias       |     N     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|        teacher.rpn_head.rpn_conv.weight        |     N     |  256X256X3X3  |  Min:-0.049 Max:0.050 | 0.01 | 0.0001 |
+|         teacher.rpn_head.rpn_conv.bias         |     N     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|        teacher.rpn_head.rpn_cls.weight         |     N     |   3X256X1X1   |  Min:-0.028 Max:0.028 | 0.01 | 0.0001 |
+|         teacher.rpn_head.rpn_cls.bias          |     N     |       3       |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|        teacher.rpn_head.rpn_reg.weight         |     N     |   12X256X1X1  |  Min:-0.039 Max:0.040 | 0.01 | 0.0001 |
+|         teacher.rpn_head.rpn_reg.bias          |     N     |       12      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|    teacher.roi_head.bbox_head.fc_cls.weight    |     N     |    11X1024    |  Min:-0.217 Max:0.159 | 0.01 | 0.0001 |
+|     teacher.roi_head.bbox_head.fc_cls.bias     |     N     |       11      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|    teacher.roi_head.bbox_head.fc_reg.weight    |     N     |    40X1024    |  Min:-0.183 Max:0.190 | 0.01 | 0.0001 |
+|     teacher.roi_head.bbox_head.fc_reg.bias     |     N     |       40      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+| teacher.roi_head.bbox_head.shared_fcs.0.weight |     N     |   1024X12544  |  Min:-0.064 Max:0.064 | 0.01 | 0.0001 |
+|  teacher.roi_head.bbox_head.shared_fcs.0.bias  |     N     |      1024     |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+| teacher.roi_head.bbox_head.shared_fcs.1.weight |     N     |   1024X1024   |  Min:-0.156 Max:0.146 | 0.01 | 0.0001 |
+|  teacher.roi_head.bbox_head.shared_fcs.1.bias  |     N     |      1024     |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|         student.backbone.conv1.weight          |     N     |    64X3X7X7   |  Min:-0.671 Max:0.704 | 0.01 | 0.0001 |
+|          student.backbone.bn1.weight           |     N     |       64      |  Min:0.513 Max:2.669  | 0.01 | 0.0001 |
+|           student.backbone.bn1.bias            |     N     |       64      |  Min:-2.654 Max:6.354 | 0.01 | 0.0001 |
+|     student.backbone.layer1.0.conv1.weight     |     N     |   64X64X1X1   |  Min:-0.717 Max:0.392 | 0.01 | 0.0001 |
+|      student.backbone.layer1.0.bn1.weight      |     N     |       64      |  Min:0.509 Max:2.066  | 0.01 | 0.0001 |
+|       student.backbone.layer1.0.bn1.bias       |     N     |       64      |  Min:-2.411 Max:3.608 | 0.01 | 0.0001 |
+|     student.backbone.layer1.0.conv2.weight     |     N     |   64X64X3X3   |  Min:-0.390 Max:0.364 | 0.01 | 0.0001 |
+|      student.backbone.layer1.0.bn2.weight      |     N     |       64      |  Min:0.420 Max:2.530  | 0.01 | 0.0001 |
+|       student.backbone.layer1.0.bn2.bias       |     N     |       64      |  Min:-2.286 Max:5.913 | 0.01 | 0.0001 |
+|     student.backbone.layer1.0.conv3.weight     |     N     |   256X64X1X1  |  Min:-0.397 Max:0.348 | 0.01 | 0.0001 |
+|      student.backbone.layer1.0.bn3.weight      |     N     |      256      |  Min:0.011 Max:2.820  | 0.01 | 0.0001 |
+|       student.backbone.layer1.0.bn3.bias       |     N     |      256      |  Min:-1.126 Max:1.522 | 0.01 | 0.0001 |
+| student.backbone.layer1.0.downsample.0.weight  |     N     |   256X64X1X1  |  Min:-0.772 Max:0.900 | 0.01 | 0.0001 |
+| student.backbone.layer1.0.downsample.1.weight  |     N     |      256      |  Min:0.004 Max:3.064  | 0.01 | 0.0001 |
+|  student.backbone.layer1.0.downsample.1.bias   |     N     |      256      |  Min:-1.126 Max:1.522 | 0.01 | 0.0001 |
+|     student.backbone.layer1.1.conv1.weight     |     N     |   64X256X1X1  |  Min:-0.297 Max:0.220 | 0.01 | 0.0001 |
+|      student.backbone.layer1.1.bn1.weight      |     N     |       64      |  Min:0.746 Max:1.949  | 0.01 | 0.0001 |
+|       student.backbone.layer1.1.bn1.bias       |     N     |       64      |  Min:-1.688 Max:1.578 | 0.01 | 0.0001 |
+|     student.backbone.layer1.1.conv2.weight     |     N     |   64X64X3X3   |  Min:-0.240 Max:0.318 | 0.01 | 0.0001 |
+|      student.backbone.layer1.1.bn2.weight      |     N     |       64      |  Min:0.621 Max:1.618  | 0.01 | 0.0001 |
+|       student.backbone.layer1.1.bn2.bias       |     N     |       64      |  Min:-2.003 Max:2.398 | 0.01 | 0.0001 |
+|     student.backbone.layer1.1.conv3.weight     |     N     |   256X64X1X1  |  Min:-0.240 Max:0.280 | 0.01 | 0.0001 |
+|      student.backbone.layer1.1.bn3.weight      |     N     |      256      |  Min:-0.017 Max:2.130 | 0.01 | 0.0001 |
+|       student.backbone.layer1.1.bn3.bias       |     N     |      256      |  Min:-1.711 Max:1.291 | 0.01 | 0.0001 |
+|     student.backbone.layer1.2.conv1.weight     |     N     |   64X256X1X1  |  Min:-0.210 Max:0.264 | 0.01 | 0.0001 |
+|      student.backbone.layer1.2.bn1.weight      |     N     |       64      |  Min:0.574 Max:1.688  | 0.01 | 0.0001 |
+|       student.backbone.layer1.2.bn1.bias       |     N     |       64      |  Min:-1.876 Max:1.090 | 0.01 | 0.0001 |
+|     student.backbone.layer1.2.conv2.weight     |     N     |   64X64X3X3   |  Min:-0.218 Max:0.201 | 0.01 | 0.0001 |
+|      student.backbone.layer1.2.bn2.weight      |     N     |       64      |  Min:0.757 Max:1.649  | 0.01 | 0.0001 |
+|       student.backbone.layer1.2.bn2.bias       |     N     |       64      |  Min:-2.221 Max:1.878 | 0.01 | 0.0001 |
+|     student.backbone.layer1.2.conv3.weight     |     N     |   256X64X1X1  |  Min:-0.275 Max:0.350 | 0.01 | 0.0001 |
+|      student.backbone.layer1.2.bn3.weight      |     N     |      256      |  Min:-0.058 Max:2.154 | 0.01 | 0.0001 |
+|       student.backbone.layer1.2.bn3.bias       |     N     |      256      |  Min:-1.570 Max:1.535 | 0.01 | 0.0001 |
+|     student.backbone.layer2.0.conv1.weight     |     Y     |  128X256X1X1  |  Min:-0.334 Max:0.300 | 0.01 | 0.0001 |
+|      student.backbone.layer2.0.bn1.weight      |     N     |      128      |  Min:0.610 Max:1.642  | 0.01 | 0.0001 |
+|       student.backbone.layer2.0.bn1.bias       |     N     |      128      |  Min:-1.579 Max:1.449 | 0.01 | 0.0001 |
+|     student.backbone.layer2.0.conv2.weight     |     Y     |  128X128X3X3  |  Min:-0.384 Max:0.377 | 0.01 | 0.0001 |
+|      student.backbone.layer2.0.bn2.weight      |     N     |      128      |  Min:0.605 Max:1.622  | 0.01 | 0.0001 |
+|       student.backbone.layer2.0.bn2.bias       |     N     |      128      |  Min:-2.768 Max:1.747 | 0.01 | 0.0001 |
+|     student.backbone.layer2.0.conv3.weight     |     Y     |  512X128X1X1  |  Min:-0.374 Max:0.434 | 0.01 | 0.0001 |
+|      student.backbone.layer2.0.bn3.weight      |     N     |      512      |  Min:-0.007 Max:2.730 | 0.01 | 0.0001 |
+|       student.backbone.layer2.0.bn3.bias       |     N     |      512      |  Min:-1.545 Max:1.256 | 0.01 | 0.0001 |
+| student.backbone.layer2.0.downsample.0.weight  |     Y     |  512X256X1X1  |  Min:-0.466 Max:0.642 | 0.01 | 0.0001 |
+| student.backbone.layer2.0.downsample.1.weight  |     N     |      512      |  Min:0.006 Max:2.552  | 0.01 | 0.0001 |
+|  student.backbone.layer2.0.downsample.1.bias   |     N     |      512      |  Min:-1.545 Max:1.256 | 0.01 | 0.0001 |
+|     student.backbone.layer2.1.conv1.weight     |     Y     |  128X512X1X1  |  Min:-0.162 Max:0.195 | 0.01 | 0.0001 |
+|      student.backbone.layer2.1.bn1.weight      |     N     |      128      |  Min:0.578 Max:1.429  | 0.01 | 0.0001 |
+|       student.backbone.layer2.1.bn1.bias       |     N     |      128      |  Min:-4.348 Max:0.588 | 0.01 | 0.0001 |
+|     student.backbone.layer2.1.conv2.weight     |     Y     |  128X128X3X3  |  Min:-0.176 Max:0.177 | 0.01 | 0.0001 |
+|      student.backbone.layer2.1.bn2.weight      |     N     |      128      |  Min:0.511 Max:1.794  | 0.01 | 0.0001 |
+|       student.backbone.layer2.1.bn2.bias       |     N     |      128      |  Min:-3.825 Max:1.343 | 0.01 | 0.0001 |
+|     student.backbone.layer2.1.conv3.weight     |     Y     |  512X128X1X1  |  Min:-0.344 Max:0.336 | 0.01 | 0.0001 |
+|      student.backbone.layer2.1.bn3.weight      |     N     |      512      |  Min:-0.072 Max:2.122 | 0.01 | 0.0001 |
+|       student.backbone.layer2.1.bn3.bias       |     N     |      512      |  Min:-1.502 Max:1.166 | 0.01 | 0.0001 |
+|     student.backbone.layer2.2.conv1.weight     |     Y     |  128X512X1X1  |  Min:-0.330 Max:0.369 | 0.01 | 0.0001 |
+|      student.backbone.layer2.2.bn1.weight      |     N     |      128      |  Min:0.406 Max:1.696  | 0.01 | 0.0001 |
+|       student.backbone.layer2.2.bn1.bias       |     N     |      128      |  Min:-2.696 Max:1.944 | 0.01 | 0.0001 |
+|     student.backbone.layer2.2.conv2.weight     |     Y     |  128X128X3X3  |  Min:-0.326 Max:0.374 | 0.01 | 0.0001 |
+|      student.backbone.layer2.2.bn2.weight      |     N     |      128      |  Min:0.460 Max:2.179  | 0.01 | 0.0001 |
+|       student.backbone.layer2.2.bn2.bias       |     N     |      128      |  Min:-1.587 Max:0.589 | 0.01 | 0.0001 |
+|     student.backbone.layer2.2.conv3.weight     |     Y     |  512X128X1X1  |  Min:-0.288 Max:0.232 | 0.01 | 0.0001 |
+|      student.backbone.layer2.2.bn3.weight      |     N     |      512      |  Min:-0.006 Max:3.043 | 0.01 | 0.0001 |
+|       student.backbone.layer2.2.bn3.bias       |     N     |      512      |  Min:-2.369 Max:0.440 | 0.01 | 0.0001 |
+|     student.backbone.layer2.3.conv1.weight     |     Y     |  128X512X1X1  |  Min:-0.298 Max:0.346 | 0.01 | 0.0001 |
+|      student.backbone.layer2.3.bn1.weight      |     N     |      128      |  Min:0.736 Max:2.394  | 0.01 | 0.0001 |
+|       student.backbone.layer2.3.bn1.bias       |     N     |      128      |  Min:-2.643 Max:0.756 | 0.01 | 0.0001 |
+|     student.backbone.layer2.3.conv2.weight     |     Y     |  128X128X3X3  |  Min:-0.272 Max:0.208 | 0.01 | 0.0001 |
+|      student.backbone.layer2.3.bn2.weight      |     N     |      128      |  Min:0.682 Max:1.694  | 0.01 | 0.0001 |
+|       student.backbone.layer2.3.bn2.bias       |     N     |      128      |  Min:-1.365 Max:1.599 | 0.01 | 0.0001 |
+|     student.backbone.layer2.3.conv3.weight     |     Y     |  512X128X1X1  |  Min:-0.279 Max:0.281 | 0.01 | 0.0001 |
+|      student.backbone.layer2.3.bn3.weight      |     N     |      512      |  Min:-0.009 Max:1.721 | 0.01 | 0.0001 |
+|       student.backbone.layer2.3.bn3.bias       |     N     |      512      |  Min:-1.897 Max:1.182 | 0.01 | 0.0001 |
+|     student.backbone.layer3.0.conv1.weight     |     Y     |  256X512X1X1  |  Min:-0.230 Max:0.341 | 0.01 | 0.0001 |
+|      student.backbone.layer3.0.bn1.weight      |     N     |      256      |  Min:0.621 Max:1.636  | 0.01 | 0.0001 |
+|       student.backbone.layer3.0.bn1.bias       |     N     |      256      |  Min:-1.420 Max:0.917 | 0.01 | 0.0001 |
+|     student.backbone.layer3.0.conv2.weight     |     Y     |  256X256X3X3  |  Min:-0.267 Max:0.179 | 0.01 | 0.0001 |
+|      student.backbone.layer3.0.bn2.weight      |     N     |      256      |  Min:0.585 Max:1.749  | 0.01 | 0.0001 |
+|       student.backbone.layer3.0.bn2.bias       |     N     |      256      |  Min:-1.837 Max:1.398 | 0.01 | 0.0001 |
+|     student.backbone.layer3.0.conv3.weight     |     Y     |  1024X256X1X1 |  Min:-0.333 Max:0.384 | 0.01 | 0.0001 |
+|      student.backbone.layer3.0.bn3.weight      |     N     |      1024     |  Min:0.071 Max:2.367  | 0.01 | 0.0001 |
+|       student.backbone.layer3.0.bn3.bias       |     N     |      1024     |  Min:-0.938 Max:0.887 | 0.01 | 0.0001 |
+| student.backbone.layer3.0.downsample.0.weight  |     Y     |  1024X512X1X1 |  Min:-0.333 Max:0.421 | 0.01 | 0.0001 |
+| student.backbone.layer3.0.downsample.1.weight  |     N     |      1024     |  Min:0.034 Max:2.779  | 0.01 | 0.0001 |
+|  student.backbone.layer3.0.downsample.1.bias   |     N     |      1024     |  Min:-0.938 Max:0.887 | 0.01 | 0.0001 |
+|     student.backbone.layer3.1.conv1.weight     |     Y     |  256X1024X1X1 |  Min:-0.197 Max:0.236 | 0.01 | 0.0001 |
+|      student.backbone.layer3.1.bn1.weight      |     N     |      256      |  Min:0.566 Max:1.743  | 0.01 | 0.0001 |
+|       student.backbone.layer3.1.bn1.bias       |     N     |      256      |  Min:-2.703 Max:1.042 | 0.01 | 0.0001 |
+|     student.backbone.layer3.1.conv2.weight     |     Y     |  256X256X3X3  |  Min:-0.436 Max:0.196 | 0.01 | 0.0001 |
+|      student.backbone.layer3.1.bn2.weight      |     N     |      256      |  Min:0.515 Max:2.301  | 0.01 | 0.0001 |
+|       student.backbone.layer3.1.bn2.bias       |     N     |      256      |  Min:-2.548 Max:1.856 | 0.01 | 0.0001 |
+|     student.backbone.layer3.1.conv3.weight     |     Y     |  1024X256X1X1 |  Min:-0.438 Max:0.295 | 0.01 | 0.0001 |
+|      student.backbone.layer3.1.bn3.weight      |     N     |      1024     |  Min:0.055 Max:1.943  | 0.01 | 0.0001 |
+|       student.backbone.layer3.1.bn3.bias       |     N     |      1024     |  Min:-1.647 Max:1.016 | 0.01 | 0.0001 |
+|     student.backbone.layer3.2.conv1.weight     |     Y     |  256X1024X1X1 |  Min:-0.387 Max:0.337 | 0.01 | 0.0001 |
+|      student.backbone.layer3.2.bn1.weight      |     N     |      256      |  Min:0.463 Max:1.886  | 0.01 | 0.0001 |
+|       student.backbone.layer3.2.bn1.bias       |     N     |      256      |  Min:-2.399 Max:0.488 | 0.01 | 0.0001 |
+|     student.backbone.layer3.2.conv2.weight     |     Y     |  256X256X3X3  |  Min:-0.165 Max:0.258 | 0.01 | 0.0001 |
+|      student.backbone.layer3.2.bn2.weight      |     N     |      256      |  Min:0.555 Max:1.901  | 0.01 | 0.0001 |
+|       student.backbone.layer3.2.bn2.bias       |     N     |      256      |  Min:-1.655 Max:0.704 | 0.01 | 0.0001 |
+|     student.backbone.layer3.2.conv3.weight     |     Y     |  1024X256X1X1 |  Min:-0.290 Max:0.261 | 0.01 | 0.0001 |
+|      student.backbone.layer3.2.bn3.weight      |     N     |      1024     |  Min:0.049 Max:1.450  | 0.01 | 0.0001 |
+|       student.backbone.layer3.2.bn3.bias       |     N     |      1024     |  Min:-1.201 Max:0.587 | 0.01 | 0.0001 |
+|     student.backbone.layer3.3.conv1.weight     |     Y     |  256X1024X1X1 |  Min:-0.194 Max:0.295 | 0.01 | 0.0001 |
+|      student.backbone.layer3.3.bn1.weight      |     N     |      256      |  Min:0.442 Max:1.353  | 0.01 | 0.0001 |
+|       student.backbone.layer3.3.bn1.bias       |     N     |      256      |  Min:-2.322 Max:0.509 | 0.01 | 0.0001 |
+|     student.backbone.layer3.3.conv2.weight     |     Y     |  256X256X3X3  |  Min:-0.201 Max:0.176 | 0.01 | 0.0001 |
+|      student.backbone.layer3.3.bn2.weight      |     N     |      256      |  Min:0.529 Max:1.939  | 0.01 | 0.0001 |
+|       student.backbone.layer3.3.bn2.bias       |     N     |      256      |  Min:-1.610 Max:0.776 | 0.01 | 0.0001 |
+|     student.backbone.layer3.3.conv3.weight     |     Y     |  1024X256X1X1 |  Min:-0.205 Max:0.239 | 0.01 | 0.0001 |
+|      student.backbone.layer3.3.bn3.weight      |     N     |      1024     |  Min:-0.037 Max:1.646 | 0.01 | 0.0001 |
+|       student.backbone.layer3.3.bn3.bias       |     N     |      1024     |  Min:-1.484 Max:0.344 | 0.01 | 0.0001 |
+|     student.backbone.layer3.4.conv1.weight     |     Y     |  256X1024X1X1 |  Min:-0.226 Max:0.306 | 0.01 | 0.0001 |
+|      student.backbone.layer3.4.bn1.weight      |     N     |      256      |  Min:0.438 Max:1.446  | 0.01 | 0.0001 |
+|       student.backbone.layer3.4.bn1.bias       |     N     |      256      |  Min:-2.511 Max:0.557 | 0.01 | 0.0001 |
+|     student.backbone.layer3.4.conv2.weight     |     Y     |  256X256X3X3  |  Min:-0.147 Max:0.223 | 0.01 | 0.0001 |
+|      student.backbone.layer3.4.bn2.weight      |     N     |      256      |  Min:0.651 Max:1.858  | 0.01 | 0.0001 |
+|       student.backbone.layer3.4.bn2.bias       |     N     |      256      |  Min:-1.588 Max:0.661 | 0.01 | 0.0001 |
+|     student.backbone.layer3.4.conv3.weight     |     Y     |  1024X256X1X1 |  Min:-0.178 Max:0.265 | 0.01 | 0.0001 |
+|      student.backbone.layer3.4.bn3.weight      |     N     |      1024     |  Min:-0.001 Max:1.501 | 0.01 | 0.0001 |
+|       student.backbone.layer3.4.bn3.bias       |     N     |      1024     |  Min:-1.108 Max:0.639 | 0.01 | 0.0001 |
+|     student.backbone.layer3.5.conv1.weight     |     Y     |  256X1024X1X1 |  Min:-0.153 Max:0.330 | 0.01 | 0.0001 |
+|      student.backbone.layer3.5.bn1.weight      |     N     |      256      |  Min:0.425 Max:1.547  | 0.01 | 0.0001 |
+|       student.backbone.layer3.5.bn1.bias       |     N     |      256      |  Min:-1.972 Max:0.823 | 0.01 | 0.0001 |
+|     student.backbone.layer3.5.conv2.weight     |     Y     |  256X256X3X3  |  Min:-0.293 Max:0.276 | 0.01 | 0.0001 |
+|      student.backbone.layer3.5.bn2.weight      |     N     |      256      |  Min:0.650 Max:2.942  | 0.01 | 0.0001 |
+|       student.backbone.layer3.5.bn2.bias       |     N     |      256      |  Min:-1.093 Max:0.771 | 0.01 | 0.0001 |
+|     student.backbone.layer3.5.conv3.weight     |     Y     |  1024X256X1X1 |  Min:-0.232 Max:0.294 | 0.01 | 0.0001 |
+|      student.backbone.layer3.5.bn3.weight      |     N     |      1024     |  Min:0.004 Max:1.984  | 0.01 | 0.0001 |
+|       student.backbone.layer3.5.bn3.bias       |     N     |      1024     |  Min:-1.636 Max:1.250 | 0.01 | 0.0001 |
+|     student.backbone.layer4.0.conv1.weight     |     Y     |  512X1024X1X1 |  Min:-0.184 Max:0.331 | 0.01 | 0.0001 |
+|      student.backbone.layer4.0.bn1.weight      |     N     |      512      |  Min:0.535 Max:1.594  | 0.01 | 0.0001 |
+|       student.backbone.layer4.0.bn1.bias       |     N     |      512      |  Min:-1.756 Max:0.288 | 0.01 | 0.0001 |
+|     student.backbone.layer4.0.conv2.weight     |     Y     |  512X512X3X3  |  Min:-0.175 Max:0.272 | 0.01 | 0.0001 |
+|      student.backbone.layer4.0.bn2.weight      |     N     |      512      |  Min:0.456 Max:1.542  | 0.01 | 0.0001 |
+|       student.backbone.layer4.0.bn2.bias       |     N     |      512      |  Min:-1.820 Max:0.839 | 0.01 | 0.0001 |
+|     student.backbone.layer4.0.conv3.weight     |     Y     |  2048X512X1X1 |  Min:-0.332 Max:0.432 | 0.01 | 0.0001 |
+|      student.backbone.layer4.0.bn3.weight      |     N     |      2048     |  Min:0.888 Max:3.492  | 0.01 | 0.0001 |
+|       student.backbone.layer4.0.bn3.bias       |     N     |      2048     |  Min:-1.810 Max:0.980 | 0.01 | 0.0001 |
+| student.backbone.layer4.0.downsample.0.weight  |     Y     | 2048X1024X1X1 |  Min:-0.622 Max:0.465 | 0.01 | 0.0001 |
+| student.backbone.layer4.0.downsample.1.weight  |     N     |      2048     |  Min:0.261 Max:4.575  | 0.01 | 0.0001 |
+|  student.backbone.layer4.0.downsample.1.bias   |     N     |      2048     |  Min:-1.810 Max:0.980 | 0.01 | 0.0001 |
+|     student.backbone.layer4.1.conv1.weight     |     Y     |  512X2048X1X1 |  Min:-0.316 Max:0.577 | 0.01 | 0.0001 |
+|      student.backbone.layer4.1.bn1.weight      |     N     |      512      |  Min:0.398 Max:1.429  | 0.01 | 0.0001 |
+|       student.backbone.layer4.1.bn1.bias       |     N     |      512      |  Min:-1.380 Max:0.428 | 0.01 | 0.0001 |
+|     student.backbone.layer4.1.conv2.weight     |     Y     |  512X512X3X3  |  Min:-0.217 Max:0.284 | 0.01 | 0.0001 |
+|      student.backbone.layer4.1.bn2.weight      |     N     |      512      |  Min:0.349 Max:1.550  | 0.01 | 0.0001 |
+|       student.backbone.layer4.1.bn2.bias       |     N     |      512      |  Min:-1.867 Max:0.880 | 0.01 | 0.0001 |
+|     student.backbone.layer4.1.conv3.weight     |     Y     |  2048X512X1X1 |  Min:-0.200 Max:0.277 | 0.01 | 0.0001 |
+|      student.backbone.layer4.1.bn3.weight      |     N     |      2048     |  Min:0.574 Max:2.847  | 0.01 | 0.0001 |
+|       student.backbone.layer4.1.bn3.bias       |     N     |      2048     |  Min:-2.638 Max:0.544 | 0.01 | 0.0001 |
+|     student.backbone.layer4.2.conv1.weight     |     Y     |  512X2048X1X1 |  Min:-0.289 Max:0.514 | 0.01 | 0.0001 |
+|      student.backbone.layer4.2.bn1.weight      |     N     |      512      |  Min:0.366 Max:1.249  | 0.01 | 0.0001 |
+|       student.backbone.layer4.2.bn1.bias       |     N     |      512      |  Min:-1.664 Max:0.753 | 0.01 | 0.0001 |
+|     student.backbone.layer4.2.conv2.weight     |     Y     |  512X512X3X3  |  Min:-0.142 Max:0.144 | 0.01 | 0.0001 |
+|      student.backbone.layer4.2.bn2.weight      |     N     |      512      |  Min:0.516 Max:1.335  | 0.01 | 0.0001 |
+|       student.backbone.layer4.2.bn2.bias       |     N     |      512      |  Min:-1.871 Max:1.181 | 0.01 | 0.0001 |
+|     student.backbone.layer4.2.conv3.weight     |     Y     |  2048X512X1X1 |  Min:-0.135 Max:0.300 | 0.01 | 0.0001 |
+|      student.backbone.layer4.2.bn3.weight      |     N     |      2048     |  Min:0.435 Max:3.073  | 0.01 | 0.0001 |
+|       student.backbone.layer4.2.bn3.bias       |     N     |      2048     | Min:-3.885 Max:-0.249 | 0.01 | 0.0001 |
+|    student.neck.lateral_convs.0.conv.weight    |     Y     |  256X256X1X1  |  Min:-0.108 Max:0.108 | 0.01 | 0.0001 |
+|     student.neck.lateral_convs.0.conv.bias     |     Y     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|    student.neck.lateral_convs.1.conv.weight    |     Y     |  256X512X1X1  |  Min:-0.088 Max:0.088 | 0.01 | 0.0001 |
+|     student.neck.lateral_convs.1.conv.bias     |     Y     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|    student.neck.lateral_convs.2.conv.weight    |     Y     |  256X1024X1X1 |  Min:-0.068 Max:0.068 | 0.01 | 0.0001 |
+|     student.neck.lateral_convs.2.conv.bias     |     Y     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|    student.neck.lateral_convs.3.conv.weight    |     Y     |  256X2048X1X1 |  Min:-0.051 Max:0.051 | 0.01 | 0.0001 |
+|     student.neck.lateral_convs.3.conv.bias     |     Y     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|      student.neck.fpn_convs.0.conv.weight      |     Y     |  256X256X3X3  |  Min:-0.036 Max:0.036 | 0.01 | 0.0001 |
+|       student.neck.fpn_convs.0.conv.bias       |     Y     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|      student.neck.fpn_convs.1.conv.weight      |     Y     |  256X256X3X3  |  Min:-0.036 Max:0.036 | 0.01 | 0.0001 |
+|       student.neck.fpn_convs.1.conv.bias       |     Y     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|      student.neck.fpn_convs.2.conv.weight      |     Y     |  256X256X3X3  |  Min:-0.036 Max:0.036 | 0.01 | 0.0001 |
+|       student.neck.fpn_convs.2.conv.bias       |     Y     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|      student.neck.fpn_convs.3.conv.weight      |     Y     |  256X256X3X3  |  Min:-0.036 Max:0.036 | 0.01 | 0.0001 |
+|       student.neck.fpn_convs.3.conv.bias       |     Y     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|        student.rpn_head.rpn_conv.weight        |     Y     |  256X256X3X3  |  Min:-0.046 Max:0.047 | 0.01 | 0.0001 |
+|         student.rpn_head.rpn_conv.bias         |     Y     |      256      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|        student.rpn_head.rpn_cls.weight         |     Y     |   3X256X1X1   |  Min:-0.026 Max:0.031 | 0.01 | 0.0001 |
+|         student.rpn_head.rpn_cls.bias          |     Y     |       3       |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|        student.rpn_head.rpn_reg.weight         |     Y     |   12X256X1X1  |  Min:-0.038 Max:0.038 | 0.01 | 0.0001 |
+|         student.rpn_head.rpn_reg.bias          |     Y     |       12      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|    student.roi_head.bbox_head.fc_cls.weight    |     Y     |    11X1024    |  Min:-0.228 Max:0.166 | 0.01 | 0.0001 |
+|     student.roi_head.bbox_head.fc_cls.bias     |     Y     |       11      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+|    student.roi_head.bbox_head.fc_reg.weight    |     Y     |    40X1024    |  Min:-0.172 Max:0.171 | 0.01 | 0.0001 |
+|     student.roi_head.bbox_head.fc_reg.bias     |     Y     |       40      |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+| student.roi_head.bbox_head.shared_fcs.0.weight |     Y     |   1024X12544  |  Min:-0.066 Max:0.064 | 0.01 | 0.0001 |
+|  student.roi_head.bbox_head.shared_fcs.0.bias  |     Y     |      1024     |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
+| student.roi_head.bbox_head.shared_fcs.1.weight |     Y     |   1024X1024   |  Min:-0.142 Max:0.148 | 0.01 | 0.0001 |
+|  student.roi_head.bbox_head.shared_fcs.1.bias  |     Y     |      1024     |  Min:0.000 Max:0.000  | 0.01 | 0.0001 |
++------------------------------------------------+-----------+---------------+-----------------------+------+--------+
+2022-04-06 11:08:28,039 - mmdet.ssod - INFO - Saving checkpoint at 1 iterations
+2022-04-06 11:08:29,935 - mmdet.ssod - INFO - Saving checkpoint at 2 iterations
+2022-04-06 11:08:33,248 - mmdet.ssod - INFO - Saving checkpoint at 3 iterations
+2022-04-06 11:08:36,528 - mmdet.ssod - INFO - Saving checkpoint at 4 iterations
+2022-04-06 11:08:41,325 - mmdet.ssod - INFO - Saving checkpoint at 5 iterations
+2022-04-06 11:08:46,145 - mmdet.ssod - INFO - Saving checkpoint at 6 iterations
+2022-04-06 11:08:51,137 - mmdet.ssod - INFO - Saving checkpoint at 7 iterations
+2022-04-06 11:08:56,037 - mmdet.ssod - INFO - Saving checkpoint at 8 iterations
+2022-04-06 11:09:00,882 - mmdet.ssod - INFO - Saving checkpoint at 9 iterations
+2022-04-06 11:09:05,953 - mmdet.ssod - INFO - Saving checkpoint at 10 iterations
+2022-04-06 11:09:10,718 - mmdet.ssod - INFO - Saving checkpoint at 11 iterations
+2022-04-06 11:09:15,745 - mmdet.ssod - INFO - Saving checkpoint at 12 iterations
+2022-04-06 11:09:20,735 - mmdet.ssod - INFO - Saving checkpoint at 13 iterations
+2022-04-06 11:09:25,726 - mmdet.ssod - INFO - Saving checkpoint at 14 iterations
+2022-04-06 11:09:30,547 - mmdet.ssod - INFO - Saving checkpoint at 15 iterations
+2022-04-06 11:09:35,546 - mmdet.ssod - INFO - Saving checkpoint at 16 iterations
+2022-04-06 11:09:40,511 - mmdet.ssod - INFO - Saving checkpoint at 17 iterations
+2022-04-06 11:09:45,474 - mmdet.ssod - INFO - Saving checkpoint at 18 iterations
+2022-04-06 11:09:50,555 - mmdet.ssod - INFO - Saving checkpoint at 19 iterations
+2022-04-06 11:09:55,588 - mmdet.ssod - INFO - Saving checkpoint at 20 iterations
+2022-04-06 11:10:00,555 - mmdet.ssod - INFO - Saving checkpoint at 21 iterations
+2022-04-06 11:10:05,239 - mmdet.ssod - INFO - Saving checkpoint at 22 iterations
+2022-04-06 11:10:09,961 - mmdet.ssod - INFO - Saving checkpoint at 23 iterations
+2022-04-06 11:10:14,844 - mmdet.ssod - INFO - Saving checkpoint at 24 iterations
+2022-04-06 11:10:19,826 - mmdet.ssod - INFO - Saving checkpoint at 25 iterations
+2022-04-06 11:10:24,606 - mmdet.ssod - INFO - Saving checkpoint at 26 iterations
+2022-04-06 11:10:29,472 - mmdet.ssod - INFO - Saving checkpoint at 27 iterations
+2022-04-06 11:10:34,380 - mmdet.ssod - INFO - Saving checkpoint at 28 iterations
+2022-04-06 11:10:39,405 - mmdet.ssod - INFO - Saving checkpoint at 29 iterations
+2022-04-06 11:10:44,337 - mmdet.ssod - INFO - Saving checkpoint at 30 iterations
+2022-04-06 11:10:49,277 - mmdet.ssod - INFO - Saving checkpoint at 31 iterations
+2022-04-06 11:10:54,241 - mmdet.ssod - INFO - Saving checkpoint at 32 iterations
+2022-04-06 11:10:59,002 - mmdet.ssod - INFO - Saving checkpoint at 33 iterations
+2022-04-06 11:11:04,059 - mmdet.ssod - INFO - Saving checkpoint at 34 iterations
+2022-04-06 11:11:09,053 - mmdet.ssod - INFO - Saving checkpoint at 35 iterations
+2022-04-06 11:11:14,131 - mmdet.ssod - INFO - Saving checkpoint at 36 iterations
+2022-04-06 11:11:19,427 - mmdet.ssod - INFO - Saving checkpoint at 37 iterations
+2022-04-06 11:11:24,299 - mmdet.ssod - INFO - Saving checkpoint at 38 iterations
+2022-04-06 11:11:29,386 - mmdet.ssod - INFO - Saving checkpoint at 39 iterations
+2022-04-06 11:11:34,618 - mmdet.ssod - INFO - Saving checkpoint at 40 iterations
+2022-04-06 11:11:39,699 - mmdet.ssod - INFO - Saving checkpoint at 41 iterations
+2022-04-06 11:11:45,045 - mmdet.ssod - INFO - Saving checkpoint at 42 iterations
+2022-04-06 11:11:49,865 - mmdet.ssod - INFO - Saving checkpoint at 43 iterations
+2022-04-06 11:11:54,742 - mmdet.ssod - INFO - Saving checkpoint at 44 iterations
+2022-04-06 11:11:59,573 - mmdet.ssod - INFO - Saving checkpoint at 45 iterations
+2022-04-06 11:12:04,378 - mmdet.ssod - INFO - Saving checkpoint at 46 iterations
+2022-04-06 11:12:09,260 - mmdet.ssod - INFO - Saving checkpoint at 47 iterations
+2022-04-06 11:12:14,123 - mmdet.ssod - INFO - Saving checkpoint at 48 iterations
+2022-04-06 11:12:18,903 - mmdet.ssod - INFO - Saving checkpoint at 49 iterations
+2022-04-06 11:12:23,903 - mmdet.ssod - INFO - Saving checkpoint at 50 iterations
+2022-04-06 11:12:27,962 - mmdet.ssod - INFO - Iter [50/720000]	lr: 9.890e-04, eta: 40 days, 13:49:35, time: 4.869, data_time: 0.041, memory: 7018, ema_momentum: 0.9800, sup_loss_rpn_cls: 0.5682, sup_loss_rpn_bbox: 0.0628, sup_loss_cls: 1.6170, sup_acc: 68.6400, sup_loss_bbox: 0.0730, unsup_loss_rpn_cls: 1.0952, unsup_loss_rpn_bbox: 0.8287, unsup_loss_cls: 1.8234, unsup_acc: 67.4977, unsup_loss_bbox: 0.0000, loss: 6.0683, grad_norm: nan
+2022-04-06 11:12:28,723 - mmdet.ssod - INFO - Saving checkpoint at 51 iterations
+2022-04-06 11:12:33,501 - mmdet.ssod - INFO - Saving checkpoint at 52 iterations
+2022-04-06 11:12:38,406 - mmdet.ssod - INFO - Saving checkpoint at 53 iterations
+2022-04-06 11:12:43,303 - mmdet.ssod - INFO - Saving checkpoint at 54 iterations
+2022-04-06 11:12:48,240 - mmdet.ssod - INFO - Saving checkpoint at 55 iterations
+2022-04-06 11:12:53,034 - mmdet.ssod - INFO - Saving checkpoint at 56 iterations
+2022-04-06 11:12:57,788 - mmdet.ssod - INFO - Saving checkpoint at 57 iterations
+2022-04-06 11:13:02,650 - mmdet.ssod - INFO - Saving checkpoint at 58 iterations
+2022-04-06 11:13:07,407 - mmdet.ssod - INFO - Saving checkpoint at 59 iterations
+2022-04-06 11:13:12,377 - mmdet.ssod - INFO - Saving checkpoint at 60 iterations
+2022-04-06 11:13:17,336 - mmdet.ssod - INFO - Saving checkpoint at 61 iterations
+2022-04-06 11:13:22,274 - mmdet.ssod - INFO - Saving checkpoint at 62 iterations
+2022-04-06 11:13:27,220 - mmdet.ssod - INFO - Saving checkpoint at 63 iterations
+2022-04-06 11:13:32,300 - mmdet.ssod - INFO - Saving checkpoint at 64 iterations
+2022-04-06 11:13:37,065 - mmdet.ssod - INFO - Saving checkpoint at 65 iterations
+2022-04-06 11:13:42,005 - mmdet.ssod - INFO - Saving checkpoint at 66 iterations
+2022-04-06 11:13:46,896 - mmdet.ssod - INFO - Saving checkpoint at 67 iterations
+2022-04-06 11:13:51,902 - mmdet.ssod - INFO - Saving checkpoint at 68 iterations
+2022-04-06 11:13:56,721 - mmdet.ssod - INFO - Saving checkpoint at 69 iterations
+2022-04-06 11:14:01,649 - mmdet.ssod - INFO - Saving checkpoint at 70 iterations
+2022-04-06 11:14:06,798 - mmdet.ssod - INFO - Saving checkpoint at 71 iterations
+2022-04-06 11:14:11,687 - mmdet.ssod - INFO - Saving checkpoint at 72 iterations
+2022-04-06 11:14:16,716 - mmdet.ssod - INFO - Saving checkpoint at 73 iterations
+2022-04-06 11:14:21,633 - mmdet.ssod - INFO - Saving checkpoint at 74 iterations
+2022-04-06 11:14:26,582 - mmdet.ssod - INFO - Saving checkpoint at 75 iterations
+2022-04-06 11:14:31,451 - mmdet.ssod - INFO - Saving checkpoint at 76 iterations
+2022-04-06 11:14:36,312 - mmdet.ssod - INFO - Saving checkpoint at 77 iterations
+2022-04-06 11:14:41,080 - mmdet.ssod - INFO - Saving checkpoint at 78 iterations
+2022-04-06 11:14:46,043 - mmdet.ssod - INFO - Saving checkpoint at 79 iterations
+2022-04-06 11:14:50,866 - mmdet.ssod - INFO - Saving checkpoint at 80 iterations
+2022-04-06 11:14:55,660 - mmdet.ssod - INFO - Saving checkpoint at 81 iterations
+2022-04-06 11:15:00,581 - mmdet.ssod - INFO - Saving checkpoint at 82 iterations
+2022-04-06 11:15:05,450 - mmdet.ssod - INFO - Saving checkpoint at 83 iterations
+2022-04-06 11:15:10,356 - mmdet.ssod - INFO - Saving checkpoint at 84 iterations
+2022-04-06 11:15:15,145 - mmdet.ssod - INFO - Saving checkpoint at 85 iterations
+2022-04-06 11:15:20,058 - mmdet.ssod - INFO - Saving checkpoint at 86 iterations
