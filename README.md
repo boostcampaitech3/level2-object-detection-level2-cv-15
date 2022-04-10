@@ -32,6 +32,7 @@ sdflsdkflsdkfj
 
 - TTA
     - flip, resize
+PseudoLabeling
 - PseudoLabeling
     - 모델이 예측한 label들 중 특정 confidence score값 이상만을 Pseudo label이라 간주하고 train데이터와 합치는 방식
     - 사용법
@@ -41,3 +42,4 @@ sdflsdkflsdkfj
     - 예시
         
         `python make_pseudo.py --train {train.json} --pseudo {for_pseudo.csv} --output {output_test.json} --threshold {0.3}`
+        PseudoLabeling
