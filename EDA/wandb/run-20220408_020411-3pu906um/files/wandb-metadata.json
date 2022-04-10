@@ -1,0 +1,26 @@
+{
+    "os": "Linux-4.4.0-210-generic-x86_64-with-debian-buster-sid",
+    "python": "3.7.11",
+    "heartbeatAt": "2022-04-08T02:04:12.704635",
+    "startedAt": "2022-04-08T02:04:11.558005",
+    "docker": null,
+    "gpu": "Tesla V100-PCIE-32GB",
+    "gpu_count": 1,
+    "cpu_count": 8,
+    "cuda": null,
+    "args": [
+        "-f",
+        "/opt/ml/.local/share/jupyter/runtime/kernel-09242853-be98-4c79-af6c-92d2b3a94e0b.json"
+    ],
+    "state": "running",
+    "program": "detection/baseline/mmdetection/EDA/eda2.ipynb",
+    "root": "/opt/ml/detection/baseline/mmdetection",
+    "git": {
+        "remote": null,
+        "commit": "6c05d4d7af479acc882af6b72421951b12eb1c19"
+    },
+    "email": "2017145088@yonsei.ac.kr",
+    "host": "f549d41cdad5",
+    "username": "root",
+    "executable": "/opt/conda/envs/detection/bin/python"
+}
