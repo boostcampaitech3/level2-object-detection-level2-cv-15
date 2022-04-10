@@ -59,9 +59,10 @@ git clone https://github.com/open-mmlab/mmdetection.git
        - weight : 사용할 모델의 pretained weight
        - best.pt : best mAP 기준, latest.pt : 마지막 model 
 5. 생성된 pt file을 사용해 inference를 진행한다.
-    '''python
+    ```python
     python detect.py --source /opt/ml/detection/dataset/test --save-txt --save-conf --con-thres {값} --weights {model 저장 경로} --augment
     ```
+    
     - source : test image가 들어있는 folder의 경로
     - save-txt : bbox 좌표 저장
     - save-conf : confidence score 저장
