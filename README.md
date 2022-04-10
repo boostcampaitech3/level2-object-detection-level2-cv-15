@@ -62,3 +62,18 @@ PseudoLabeling
     </aside>
     
 - **PseudoLabeling**
+- # TTA & PseudoLabeling
+
+- **TTA**
+    - test시에 `flip`과 `resize`와 같은 augmentation을 적용시켜 다음과 같이 앙상블의 효과를 낼 수 있다.
+        
+        ```python
+           Input
+             |            # input batch of images
+        / / /|\ \ \       # apply augmentations (flips, rotation, scale, etc.)
+        | | | | | | |     # pass augmented batches through model
+        | | | | | | |     # reverse transformations for each batch of masks/labels
+        \ \ \ / / /       # merge predictions (mean, max, gmean, etc.)
+             |            # output batch of masks/labels
+           Output
+        ```
