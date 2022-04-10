@@ -12,6 +12,7 @@
 - Public mAP 0.7006 → Private mAP **0.6836**
 - Public 11위 → Private **11위**
 
+![image](https://user-images.githubusercontent.com/57162812/162613718-c2a7bd73-774f-4d7f-a8d0-672ec731680c.png)
 
 
 # readme
