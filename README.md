@@ -29,19 +29,19 @@
 # **Archive contents**
 
 ```python
-template
-├──EDA
-├──dataset
-│  ├──data_cleansing
-│  ├──pseudo
-│  └──stratified
-├──models
-│  ├──SoftTeacher
-│  ├──UniversNet
-│  ├──efficientdet-pytorch
-│  ├──mmdetection              #cascadeRCNN
-│  └──yolov5
-└──utils
+level2-object-detection-level2-cv-15
+├──EDA/
+├──dataset/
+│  ├──data_cleansing/
+│  ├──pseudo/
+│  └──stratified/
+├──models/
+│  ├──SoftTeacher/
+│  ├──UniversNet/
+│  ├──efficientdet-pytorch/
+│  ├──mmdetection/              #cascadeRCNN
+│  └──yolov5/
+└──utils/
    ├──Ensemble.ipynb
    ├──dataVisualization.ipynb
    └──skf.py
