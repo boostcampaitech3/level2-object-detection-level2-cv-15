@@ -28,3 +28,16 @@ sdflsdkflsdkfj
 1. 안녕?
 
 - 안녕?
+# TTA & PseudoLabeling
+
+- TTA
+    - flip, resize
+- PseudoLabeling
+    - 모델이 예측한 label들 중 특정 confidence score값 이상만을 Pseudo label이라 간주하고 train데이터와 합치는 방식
+    - 사용법
+        
+        `python make_pseudo.py --train {train의 json파일} --pseudo {모델이 예측한 csv파일} --output {결과물 json파일 경로} --threshold {confidence score제한값}`
+        
+    - 예시
+        
+        `python make_pseudo.py --train {train.json} --pseudo {for_pseudo.csv} --output {output_test.json} --threshold {0.3}`
